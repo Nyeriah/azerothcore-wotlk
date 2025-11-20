@@ -65,6 +65,7 @@ public:
             _initTalk = false;
             _canTalk = true;
             _minionInCombat = false;
+            _minionPulledRecently = false;
 
             scheduler.SetValidator([this]
             {
@@ -117,6 +118,14 @@ public:
 
         void DoAction(int32 actionId) override
         {
+            if (actionId == ACTION_MINION_ENGAGED)
+            {
+                _minionPulledRecently = true;
+                me->m_Events.AddEventAtOffset([this] {
+                    _minionPulledRecently = false;
+                }, 5s);
+            }
+
             if (actionId == ACTION_MINION_ENGAGED && !_minionInCombat)
             {
                 _minionInCombat = true;
@@ -138,6 +147,13 @@ public:
                     me->SetInCombatWithZone();
                 }, IsHeroic() ? 200s : 180s);
             }
+        }
+
+        void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override
+        {
+            if (spellInfo->Id == SPELL_SUBBOSS_AGGRO_TRIGGER && !_minionPulledRecently)
+                if (Creature* creature = target->ToCreature())
+                    creature->SetInCombatWithZone();
         }
 
         uint32 GetData(uint32 data) const override
@@ -212,6 +228,7 @@ public:
         bool _initTalk;
         bool _canTalk;
         bool _minionInCombat;
+        bool _minionPulledRecently;
 
         [[nodiscard]] bool IsInFrenzy() const { return me->HasAura(SPELL_FRENZY); }
     };
