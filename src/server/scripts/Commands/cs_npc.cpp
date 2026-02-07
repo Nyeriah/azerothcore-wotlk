@@ -21,6 +21,7 @@
 #include "CreatureGroups.h"
 #include "GameTime.h"
 #include "Language.h"
+#include "MapMgr.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
 #include "Player.h"
@@ -192,6 +193,7 @@ public:
             { "add",            npcAddCommandTable },
             { "delete",         npcDeleteCommandTable },
             { "follow",         npcFollowCommandTable },
+            { "load",           HandleNpcLoadCommand,              SEC_ADMINISTRATOR, Console::Yes },
             { "set",            npcSetCommandTable }
         };
         static ChatCommandTable commandTable =
@@ -257,6 +259,38 @@ public:
         }
 
         sObjectMgr->AddCreatureToGrid(spawnId, sObjectMgr->GetCreatureData(spawnId));
+        return true;
+    }
+
+    static bool HandleNpcLoadCommand(ChatHandler* handler, CreatureSpawnId spawnId)
+    {
+        if (!spawnId)
+            return false;
+
+        CreatureData const* data = sObjectMgr->LoadCreatureFromDatabase(spawnId);
+        if (!data)
+        {
+            handler->PSendSysMessage("Creature spawn %u not found in the database.", uint32(spawnId));
+            return false;
+        }
+
+        Map* map = sMapMgr->FindBaseNonInstanceMap(data->mapid);
+        if (!map)
+        {
+            handler->PSendSysMessage("Creature spawn %u is on a non-instanceable map %u that is not loaded.", uint32(spawnId), data->mapid);
+            return false;
+        }
+
+        Creature* creature = new Creature();
+        if (!creature->LoadCreatureFromDB(spawnId, map, true, true))
+        {
+            delete creature;
+            handler->PSendSysMessage("Failed to load creature spawn %u.", uint32(spawnId));
+            return false;
+        }
+
+        sObjectMgr->AddCreatureToGrid(spawnId, data);
+        handler->PSendSysMessage("Creature spawn %u loaded successfully.", uint32(spawnId));
         return true;
     }
 
