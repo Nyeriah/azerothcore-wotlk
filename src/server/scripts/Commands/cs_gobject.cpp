@@ -66,12 +66,12 @@ public:
         return commandTable;
     }
 
-    static bool HandleGameObjectActivateCommand(ChatHandler* handler, Optional<GameObjectSpawnId> guidLow)
+    static bool HandleGameObjectActivateCommand(ChatHandler* handler, GameObjectSpawnId guidLow)
     {
-        GameObject* object = guidLow ? handler->GetObjectFromPlayerMapByDbGuid(*guidLow) : handler->GetNearbyGameObject();
+        GameObject* object = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
         if (!object)
         {
-            handler->SendErrorMessage(LANG_COMMAND_OBJNOTFOUND, guidLow ? uint32(*guidLow) : 0);
+            handler->SendErrorMessage(LANG_COMMAND_OBJNOTFOUND, uint32(guidLow));
             return false;
         }
 
@@ -346,12 +346,12 @@ public:
     }
 
     //delete object by selection or guid
-    static bool HandleGameObjectDeleteCommand(ChatHandler* handler, Optional<GameObjectSpawnId> spawnId)
+    static bool HandleGameObjectDeleteCommand(ChatHandler* handler, GameObjectSpawnId spawnId)
     {
-        GameObject* object = spawnId ? handler->GetObjectFromPlayerMapByDbGuid(*spawnId) : handler->GetNearbyGameObject();
+        GameObject* object = handler->GetObjectFromPlayerMapByDbGuid(spawnId);
         if (!object)
         {
-            handler->SendErrorMessage(LANG_COMMAND_OBJNOTFOUND, spawnId ? uint32(*spawnId) : 0);
+            handler->SendErrorMessage(LANG_COMMAND_OBJNOTFOUND, uint32(spawnId));
             return false;
         }
 
@@ -370,14 +370,9 @@ public:
 
         object->SetRespawnTime(0);                                 // not save respawn time
         object->Delete();
+        object->DeleteFromDB();
 
-        if (object->GetSpawnId())
-        {
-            object->DeleteFromDB();
-            handler->PSendSysMessage(LANG_COMMAND_DELOBJMESSAGE, object->GetSpawnId());
-        }
-        else
-            handler->PSendSysMessage("Temporary game object (Entry: {}) removed.", object->GetEntry());
+        handler->PSendSysMessage(LANG_COMMAND_DELOBJMESSAGE, object->GetSpawnId());
 
         return true;
     }
