@@ -835,7 +835,7 @@ public:
                     for (Condition* cond : conditions)
                     {
                         if (!cond->Meets(srcInfo))
-                            handler->PSendSysMessage("  - Condition not met: type {} value1: {} value2: {} value3: {}", uint32(cond->ConditionType), cond->ConditionValue1, cond->ConditionValue2, cond->ConditionValue3);
+                            handler->PSendSysMessage(LANG_CMD_QUEST_STATUS_COND_DETAIL, uint32(cond->ConditionType), cond->ConditionValue1, cond->ConditionValue2, cond->ConditionValue3);
                     }
                 }
 

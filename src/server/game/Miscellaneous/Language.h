@@ -1181,8 +1181,9 @@ enum AcoreStrings
     LANG_CMD_QUEST_STATUS_SEASONAL      = 5107,
     LANG_CMD_QUEST_STATUS_CONDITION     = 5108,
     LANG_CMD_QUEST_STATUS_LOG_FULL      = 5109,
+    LANG_CMD_QUEST_STATUS_COND_DETAIL   = 5110,
 
-    // Room for more strings    5110-9999
+    // Room for more strings    5111-9999
 
     // Level requirement notifications
     LANG_SAY_REQ                        = 6604,

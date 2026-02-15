@@ -1,7 +1,7 @@
 --
-DELETE FROM `acore_string` WHERE `entry` IN (5089, 5090, 5091, 5092, 5093, 5094, 5095, 5096, 5097, 5098, 5099, 5100, 5101, 5102, 5103, 5104, 5105, 5106, 5107, 5108, 5109);
+DELETE FROM `acore_string` WHERE `entry` IN (5089, 5090, 5091, 5092, 5093, 5094, 5095, 5096, 5097, 5098, 5099, 5100, 5101, 5102, 5103, 5104, 5105, 5106, 5107, 5108, 5109, 5110);
 INSERT INTO `acore_string` (`entry`, `content_default`) VALUES
-(5089, 'Quest {} can\'t be taken. Reasons:'),
+(5089, 'Quest {} cannot be taken. Reasons:'),
 (5090, '  - Quest is disabled.'),
 (5091, '  - Quest has already been taken or completed.'),
 (5092, '  - Class requirement not met.'),
@@ -21,4 +21,5 @@ INSERT INTO `acore_string` (`entry`, `content_default`) VALUES
 (5106, '  - Monthly quest already completed this month.'),
 (5107, '  - Seasonal quest already completed this season.'),
 (5108, '  - Condition requirements not met:'),
-(5109, '  - Quest log is full.');
+(5109, '  - Quest log is full.'),
+(5110, '    - Condition not met: type {} value1: {} value2: {} value3: {}');
