@@ -843,6 +843,11 @@ public:
                     handler->SendSysMessage(LANG_CMD_QUEST_STATUS_LOG_FULL);
             }
         }
+        else
+        {
+            handler->SendErrorMessage(LANG_PLAYER_NOT_FOUND);
+            return false;
+        }
 
         return true;
     }
