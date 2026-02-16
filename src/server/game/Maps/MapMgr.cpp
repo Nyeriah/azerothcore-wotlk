@@ -139,7 +139,12 @@ Map::EnterState MapMgr::PlayerCannotEnter(uint32 mapid, Player* player, bool log
         return Map::CANNOT_ENTER_NO_ENTRY;
 
     if (!entry->IsDungeon())
+    {
+        if (!player->IsGameMaster() && !sScriptMgr->OnPlayerCanEnterMap(player, entry, nullptr, nullptr, loginCheck))
+            return Map::CANNOT_ENTER_UNSPECIFIED_REASON;
+
         return Map::CAN_ENTER;
+    }
 
     InstanceTemplate const* instance = sObjectMgr->GetInstanceTemplate(mapid);
     if (!instance)
