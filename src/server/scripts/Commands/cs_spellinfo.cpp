@@ -37,7 +37,8 @@ public:
         {
             { "attributes", HandleSpellInfoAttributesCommand, SEC_GAMEMASTER, Console::Yes },
             { "effects",    HandleSpellInfoEffectsCommand,    SEC_GAMEMASTER, Console::Yes },
-            { "targets",    HandleSpellInfoTargetsCommand,    SEC_GAMEMASTER, Console::Yes }
+            { "targets",    HandleSpellInfoTargetsCommand,    SEC_GAMEMASTER, Console::Yes },
+            { "all",        HandleSpellInfoAllCommand,        SEC_GAMEMASTER, Console::Yes }
         };
 
         static ChatCommandTable commandTable =
@@ -751,29 +752,22 @@ public:
                 handler->PSendSysMessage("  - {}", EnumUtils::ToConstant(attr));
     }
 
-    static bool HandleSpellInfoAttributesCommand(ChatHandler* handler, SpellInfo const* spell)
+    static void PrintBasicInfo(ChatHandler* handler, SpellInfo const* spell)
     {
-        if (!spell)
-        {
-            handler->SendErrorMessage(LANG_COMMAND_NOSPELLFOUND);
-            return false;
-        }
-
         int locale = handler->GetSessionDbcLocale();
 
-        // Basic Info
-        handler->PSendSysMessage("===== SPELL ATTRIBUTES =====");
         handler->PSendSysMessage("ID: {}", spell->Id);
         handler->PSendSysMessage("Name: {}", spell->SpellName[locale]);
         if (spell->Rank[locale] && spell->Rank[locale][0] != '\0')
             handler->PSendSysMessage("Rank: {}", spell->Rank[locale]);
 
-        // Dispel & Mechanic
         handler->PSendSysMessage("Dispel: {} ({})", spell->Dispel, GetDispelName(spell->Dispel));
         if (spell->Mechanic)
             handler->PSendSysMessage("Mechanic: {} ({})", spell->Mechanic, EnumUtils::ToConstant(static_cast<Mechanics>(spell->Mechanic)));
+    }
 
-        // Attributes
+    static void PrintAttributes(ChatHandler* handler, SpellInfo const* spell)
+    {
         PrintSpellAttrFlags<SpellAttr0>(handler, "Attributes", spell->Attributes);
         PrintSpellAttrFlags<SpellAttr1>(handler, "AttributesEx", spell->AttributesEx);
         PrintSpellAttrFlags<SpellAttr2>(handler, "AttributesEx2", spell->AttributesEx2);
@@ -820,101 +814,14 @@ public:
             if (spell->AttributesCu & SPELL_ATTR0_CU_BYPASS_MECHANIC_IMMUNITY) handler->PSendSysMessage("  - SPELL_ATTR0_CU_BYPASS_MECHANIC_IMMUNITY");
         }
 
-        // Stances
         if (spell->Stances)
             handler->PSendSysMessage("Stances: 0x{:08X}", spell->Stances);
         if (spell->StancesNot)
             handler->PSendSysMessage("StancesNot: 0x{:08X}", spell->StancesNot);
-
-        // Cast Time
-        if (spell->CastTimeEntry)
-            handler->PSendSysMessage("CastTime: {} ms", spell->CastTimeEntry->CastTime);
-
-        // Duration
-        if (spell->DurationEntry)
-            handler->PSendSysMessage("Duration: {} / {} / {} ms", spell->DurationEntry->Duration[0], spell->DurationEntry->Duration[1], spell->DurationEntry->Duration[2]);
-
-        // Range
-        if (spell->RangeEntry)
-            handler->PSendSysMessage("Range: {:.1f}-{:.1f} (hostile), {:.1f}-{:.1f} (friendly)",
-                spell->RangeEntry->RangeMin[0], spell->RangeEntry->RangeMax[0],
-                spell->RangeEntry->RangeMin[1], spell->RangeEntry->RangeMax[1]);
-
-        // Recovery & Cooldowns
-        if (spell->RecoveryTime)
-            handler->PSendSysMessage("RecoveryTime: {} ms", spell->RecoveryTime);
-        if (spell->CategoryRecoveryTime)
-            handler->PSendSysMessage("CategoryRecoveryTime: {} ms", spell->CategoryRecoveryTime);
-        if (spell->StartRecoveryTime)
-            handler->PSendSysMessage("StartRecoveryTime: {} ms (Category: {})", spell->StartRecoveryTime, spell->StartRecoveryCategory);
-
-        // Interrupt Flags
-        if (spell->InterruptFlags)
-            handler->PSendSysMessage("InterruptFlags: 0x{:08X}", spell->InterruptFlags);
-        if (spell->AuraInterruptFlags)
-            handler->PSendSysMessage("AuraInterruptFlags: 0x{:08X}", spell->AuraInterruptFlags);
-        if (spell->ChannelInterruptFlags)
-            handler->PSendSysMessage("ChannelInterruptFlags: 0x{:08X}", spell->ChannelInterruptFlags);
-
-        // Proc
-        if (spell->ProcFlags)
-            handler->PSendSysMessage("ProcFlags: 0x{:08X}", spell->ProcFlags);
-        handler->PSendSysMessage("ProcChance: {}%", spell->ProcChance);
-        if (spell->ProcCharges)
-            handler->PSendSysMessage("ProcCharges: {}", spell->ProcCharges);
-
-        // Levels
-        handler->PSendSysMessage("SpellLevel: {}, BaseLevel: {}, MaxLevel: {}", spell->SpellLevel, spell->BaseLevel, spell->MaxLevel);
-
-        // Power
-        handler->PSendSysMessage("PowerType: {} ({})", spell->PowerType, GetPowerName(spell->PowerType));
-        if (spell->ManaCost)
-            handler->PSendSysMessage("ManaCost: {}", spell->ManaCost);
-        if (spell->ManaCostPercentage)
-            handler->PSendSysMessage("ManaCostPercentage: {}", spell->ManaCostPercentage);
-        if (spell->ManaPerSecond)
-            handler->PSendSysMessage("ManaPerSecond: {}", spell->ManaPerSecond);
-
-        // Speed
-        if (spell->Speed > 0.0f)
-            handler->PSendSysMessage("Speed: {:.2f}", spell->Speed);
-
-        // Stack
-        if (spell->StackAmount)
-            handler->PSendSysMessage("StackAmount: {}", spell->StackAmount);
-
-        // Equipped item requirements
-        if (spell->EquippedItemClass >= 0)
-            handler->PSendSysMessage("EquippedItemClass: {}, SubClassMask: 0x{:08X}, InvTypeMask: 0x{:08X}",
-                spell->EquippedItemClass, static_cast<uint32>(spell->EquippedItemSubClassMask), static_cast<uint32>(spell->EquippedItemInventoryTypeMask));
-
-        // Spell Family
-        handler->PSendSysMessage("SpellFamilyName: {} ({})", spell->SpellFamilyName, GetSpellFamilyName(spell->SpellFamilyName));
-        handler->PSendSysMessage("SpellFamilyFlags: 0x{:08X} 0x{:08X} 0x{:08X}", spell->SpellFamilyFlags[0], spell->SpellFamilyFlags[1], spell->SpellFamilyFlags[2]);
-
-        // Damage class & School
-        handler->PSendSysMessage("DmgClass: {} ({})", spell->DmgClass, GetDmgClassName(spell->DmgClass));
-        handler->PSendSysMessage("PreventionType: {} ({})", spell->PreventionType, GetPreventionTypeName(spell->PreventionType));
-        handler->PSendSysMessage("SchoolMask: 0x{:02X}", spell->SchoolMask);
-
-        handler->PSendSysMessage("============================");
-        return true;
     }
 
-    static bool HandleSpellInfoEffectsCommand(ChatHandler* handler, SpellInfo const* spell)
+    static void PrintEffects(ChatHandler* handler, SpellInfo const* spell)
     {
-        if (!spell)
-        {
-            handler->SendErrorMessage(LANG_COMMAND_NOSPELLFOUND);
-            return false;
-        }
-
-        int locale = handler->GetSessionDbcLocale();
-
-        handler->PSendSysMessage("====== SPELL EFFECTS ======");
-        handler->PSendSysMessage("ID: {}", spell->Id);
-        handler->PSendSysMessage("Name: {}", spell->SpellName[locale]);
-
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
             SpellEffectInfo const& eff = spell->Effects[i];
@@ -961,26 +868,10 @@ public:
             if (eff.SpellClassMask)
                 handler->PSendSysMessage("  SpellClassMask: 0x{:08X} 0x{:08X} 0x{:08X}", eff.SpellClassMask[0], eff.SpellClassMask[1], eff.SpellClassMask[2]);
         }
-
-        handler->PSendSysMessage("===========================");
-        return true;
     }
 
-    static bool HandleSpellInfoTargetsCommand(ChatHandler* handler, SpellInfo const* spell)
+    static void PrintTargets(ChatHandler* handler, SpellInfo const* spell)
     {
-        if (!spell)
-        {
-            handler->SendErrorMessage(LANG_COMMAND_NOSPELLFOUND);
-            return false;
-        }
-
-        int locale = handler->GetSessionDbcLocale();
-
-        handler->PSendSysMessage("====== SPELL TARGETS ======");
-        handler->PSendSysMessage("ID: {}", spell->Id);
-        handler->PSendSysMessage("Name: {}", spell->SpellName[locale]);
-
-        // Spell-level target info
         if (spell->Targets)
             handler->PSendSysMessage("Targets: 0x{:08X}", spell->Targets);
         if (spell->TargetCreatureType)
@@ -990,7 +881,6 @@ public:
         if (spell->MaxTargetLevel)
             handler->PSendSysMessage("MaxTargetLevel: {}", spell->MaxTargetLevel);
 
-        // Per-effect target info
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
             SpellEffectInfo const& eff = spell->Effects[i];
@@ -1016,8 +906,129 @@ public:
             if (eff.ChainTarget)
                 handler->PSendSysMessage("  ChainTarget: {}", eff.ChainTarget);
         }
+    }
 
+    static void PrintGeneralInfo(ChatHandler* handler, SpellInfo const* spell)
+    {
+        if (spell->CastTimeEntry)
+            handler->PSendSysMessage("CastTime: {} ms", spell->CastTimeEntry->CastTime);
+
+        if (spell->DurationEntry)
+            handler->PSendSysMessage("Duration: {} / {} / {} ms", spell->DurationEntry->Duration[0], spell->DurationEntry->Duration[1], spell->DurationEntry->Duration[2]);
+
+        if (spell->RangeEntry)
+            handler->PSendSysMessage("Range: {:.1f}-{:.1f} (hostile), {:.1f}-{:.1f} (friendly)",
+                spell->RangeEntry->RangeMin[0], spell->RangeEntry->RangeMax[0],
+                spell->RangeEntry->RangeMin[1], spell->RangeEntry->RangeMax[1]);
+
+        if (spell->RecoveryTime)
+            handler->PSendSysMessage("RecoveryTime: {} ms", spell->RecoveryTime);
+        if (spell->CategoryRecoveryTime)
+            handler->PSendSysMessage("CategoryRecoveryTime: {} ms", spell->CategoryRecoveryTime);
+        if (spell->StartRecoveryTime)
+            handler->PSendSysMessage("StartRecoveryTime: {} ms (Category: {})", spell->StartRecoveryTime, spell->StartRecoveryCategory);
+
+        if (spell->InterruptFlags)
+            handler->PSendSysMessage("InterruptFlags: 0x{:08X}", spell->InterruptFlags);
+        if (spell->AuraInterruptFlags)
+            handler->PSendSysMessage("AuraInterruptFlags: 0x{:08X}", spell->AuraInterruptFlags);
+        if (spell->ChannelInterruptFlags)
+            handler->PSendSysMessage("ChannelInterruptFlags: 0x{:08X}", spell->ChannelInterruptFlags);
+
+        if (spell->ProcFlags)
+            handler->PSendSysMessage("ProcFlags: 0x{:08X}", spell->ProcFlags);
+        handler->PSendSysMessage("ProcChance: {}%", spell->ProcChance);
+        if (spell->ProcCharges)
+            handler->PSendSysMessage("ProcCharges: {}", spell->ProcCharges);
+
+        handler->PSendSysMessage("SpellLevel: {}, BaseLevel: {}, MaxLevel: {}", spell->SpellLevel, spell->BaseLevel, spell->MaxLevel);
+
+        handler->PSendSysMessage("PowerType: {} ({})", spell->PowerType, GetPowerName(spell->PowerType));
+        if (spell->ManaCost)
+            handler->PSendSysMessage("ManaCost: {}", spell->ManaCost);
+        if (spell->ManaCostPercentage)
+            handler->PSendSysMessage("ManaCostPercentage: {}", spell->ManaCostPercentage);
+        if (spell->ManaPerSecond)
+            handler->PSendSysMessage("ManaPerSecond: {}", spell->ManaPerSecond);
+
+        if (spell->Speed > 0.0f)
+            handler->PSendSysMessage("Speed: {:.2f}", spell->Speed);
+
+        if (spell->StackAmount)
+            handler->PSendSysMessage("StackAmount: {}", spell->StackAmount);
+
+        if (spell->EquippedItemClass >= 0)
+            handler->PSendSysMessage("EquippedItemClass: {}, SubClassMask: 0x{:08X}, InvTypeMask: 0x{:08X}",
+                spell->EquippedItemClass, static_cast<uint32>(spell->EquippedItemSubClassMask), static_cast<uint32>(spell->EquippedItemInventoryTypeMask));
+
+        handler->PSendSysMessage("SpellFamilyName: {} ({})", spell->SpellFamilyName, GetSpellFamilyName(spell->SpellFamilyName));
+        handler->PSendSysMessage("SpellFamilyFlags: 0x{:08X} 0x{:08X} 0x{:08X}", spell->SpellFamilyFlags[0], spell->SpellFamilyFlags[1], spell->SpellFamilyFlags[2]);
+
+        handler->PSendSysMessage("DmgClass: {} ({})", spell->DmgClass, GetDmgClassName(spell->DmgClass));
+        handler->PSendSysMessage("PreventionType: {} ({})", spell->PreventionType, GetPreventionTypeName(spell->PreventionType));
+        handler->PSendSysMessage("SchoolMask: 0x{:02X}", spell->SchoolMask);
+    }
+
+    static bool HandleSpellInfoAttributesCommand(ChatHandler* handler, SpellInfo const* spell)
+    {
+        if (!spell)
+        {
+            handler->SendErrorMessage(LANG_COMMAND_NOSPELLFOUND);
+            return false;
+        }
+
+        handler->PSendSysMessage("===== SPELL ATTRIBUTES =====");
+        PrintBasicInfo(handler, spell);
+        PrintAttributes(handler, spell);
+        handler->PSendSysMessage("============================");
+        return true;
+    }
+
+    static bool HandleSpellInfoEffectsCommand(ChatHandler* handler, SpellInfo const* spell)
+    {
+        if (!spell)
+        {
+            handler->SendErrorMessage(LANG_COMMAND_NOSPELLFOUND);
+            return false;
+        }
+
+        handler->PSendSysMessage("====== SPELL EFFECTS ======");
+        PrintBasicInfo(handler, spell);
+        PrintEffects(handler, spell);
         handler->PSendSysMessage("===========================");
+        return true;
+    }
+
+    static bool HandleSpellInfoTargetsCommand(ChatHandler* handler, SpellInfo const* spell)
+    {
+        if (!spell)
+        {
+            handler->SendErrorMessage(LANG_COMMAND_NOSPELLFOUND);
+            return false;
+        }
+
+        handler->PSendSysMessage("====== SPELL TARGETS ======");
+        PrintBasicInfo(handler, spell);
+        PrintTargets(handler, spell);
+        handler->PSendSysMessage("===========================");
+        return true;
+    }
+
+    static bool HandleSpellInfoAllCommand(ChatHandler* handler, SpellInfo const* spell)
+    {
+        if (!spell)
+        {
+            handler->SendErrorMessage(LANG_COMMAND_NOSPELLFOUND);
+            return false;
+        }
+
+        handler->PSendSysMessage("========== SPELL INFO ==========");
+        PrintBasicInfo(handler, spell);
+        PrintAttributes(handler, spell);
+        PrintGeneralInfo(handler, spell);
+        PrintEffects(handler, spell);
+        PrintTargets(handler, spell);
+        handler->PSendSysMessage("================================");
         return true;
     }
 };
