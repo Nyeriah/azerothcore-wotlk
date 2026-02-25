@@ -1,0 +1,7 @@
+--
+DELETE FROM `command` WHERE `name` IN ('spellinfo', 'spellinfo attributes', 'spellinfo effects', 'spellinfo targets');
+INSERT INTO `command` (`name`, `security`, `help`) VALUES
+('spellinfo', 2, 'Syntax: .spellinfo $subcommand\n\nType .spellinfo to see a list of subcommands or .help spellinfo $subcommand to see info on subcommands.'),
+('spellinfo attributes', 2, 'Syntax: .spellinfo attributes #spellid\n\nDisplays attribute data for spell #spellid including flags, dispel type, mechanic, stances, levels, power cost, cooldowns, proc info, family, school and more.'),
+('spellinfo effects', 2, 'Syntax: .spellinfo effects #spellid\n\nDisplays effect data for spell #spellid including effect type, aura type, base points, multipliers, misc values, mechanic, trigger spell, amplitude and class mask per effect.'),
+('spellinfo targets', 2, 'Syntax: .spellinfo targets #spellid\n\nDisplays target data for spell #spellid including target mask, creature type, max affected targets, and per-effect TargetA, TargetB, radius and chain targets.');

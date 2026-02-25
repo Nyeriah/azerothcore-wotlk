@@ -33,9 +33,16 @@ public:
 
     ChatCommandTable GetCommands() const override
     {
+        static ChatCommandTable spellinfoCommandTable =
+        {
+            { "attributes", HandleSpellInfoAttributesCommand, SEC_GAMEMASTER, Console::Yes },
+            { "effects",    HandleSpellInfoEffectsCommand,    SEC_GAMEMASTER, Console::Yes },
+            { "targets",    HandleSpellInfoTargetsCommand,    SEC_GAMEMASTER, Console::Yes }
+        };
+
         static ChatCommandTable commandTable =
         {
-            { "spellinfo", HandleSpellInfoCommand, SEC_GAMEMASTER, Console::Yes }
+            { "spellinfo", spellinfoCommandTable }
         };
 
         return commandTable;
@@ -744,7 +751,7 @@ public:
                 handler->PSendSysMessage("  - {}", EnumUtils::ToConstant(attr));
     }
 
-    static bool HandleSpellInfoCommand(ChatHandler* handler, SpellInfo const* spell)
+    static bool HandleSpellInfoAttributesCommand(ChatHandler* handler, SpellInfo const* spell)
     {
         if (!spell)
         {
@@ -755,7 +762,7 @@ public:
         int locale = handler->GetSessionDbcLocale();
 
         // Basic Info
-        handler->PSendSysMessage("========== SPELL INFO ==========");
+        handler->PSendSysMessage("===== SPELL ATTRIBUTES =====");
         handler->PSendSysMessage("ID: {}", spell->Id);
         handler->PSendSysMessage("Name: {}", spell->SpellName[locale]);
         if (spell->Rank[locale] && spell->Rank[locale][0] != '\0')
@@ -819,12 +826,6 @@ public:
         if (spell->StancesNot)
             handler->PSendSysMessage("StancesNot: 0x{:08X}", spell->StancesNot);
 
-        // Targets
-        if (spell->Targets)
-            handler->PSendSysMessage("Targets: 0x{:08X}", spell->Targets);
-        if (spell->TargetCreatureType)
-            handler->PSendSysMessage("TargetCreatureType: 0x{:08X}", spell->TargetCreatureType);
-
         // Cast Time
         if (spell->CastTimeEntry)
             handler->PSendSysMessage("CastTime: {} ms", spell->CastTimeEntry->CastTime);
@@ -887,12 +888,6 @@ public:
             handler->PSendSysMessage("EquippedItemClass: {}, SubClassMask: 0x{:08X}, InvTypeMask: 0x{:08X}",
                 spell->EquippedItemClass, static_cast<uint32>(spell->EquippedItemSubClassMask), static_cast<uint32>(spell->EquippedItemInventoryTypeMask));
 
-        // Max affected targets
-        if (spell->MaxAffectedTargets)
-            handler->PSendSysMessage("MaxAffectedTargets: {}", spell->MaxAffectedTargets);
-        if (spell->MaxTargetLevel)
-            handler->PSendSysMessage("MaxTargetLevel: {}", spell->MaxTargetLevel);
-
         // Spell Family
         handler->PSendSysMessage("SpellFamilyName: {} ({})", spell->SpellFamilyName, GetSpellFamilyName(spell->SpellFamilyName));
         handler->PSendSysMessage("SpellFamilyFlags: 0x{:08X} 0x{:08X} 0x{:08X}", spell->SpellFamilyFlags[0], spell->SpellFamilyFlags[1], spell->SpellFamilyFlags[2]);
@@ -902,7 +897,24 @@ public:
         handler->PSendSysMessage("PreventionType: {} ({})", spell->PreventionType, GetPreventionTypeName(spell->PreventionType));
         handler->PSendSysMessage("SchoolMask: 0x{:02X}", spell->SchoolMask);
 
-        // Effects
+        handler->PSendSysMessage("============================");
+        return true;
+    }
+
+    static bool HandleSpellInfoEffectsCommand(ChatHandler* handler, SpellInfo const* spell)
+    {
+        if (!spell)
+        {
+            handler->SendErrorMessage(LANG_COMMAND_NOSPELLFOUND);
+            return false;
+        }
+
+        int locale = handler->GetSessionDbcLocale();
+
+        handler->PSendSysMessage("====== SPELL EFFECTS ======");
+        handler->PSendSysMessage("ID: {}", spell->Id);
+        handler->PSendSysMessage("Name: {}", spell->SpellName[locale]);
+
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
             SpellEffectInfo const& eff = spell->Effects[i];
@@ -939,19 +951,6 @@ public:
             if (eff.Mechanic)
                 handler->PSendSysMessage("  Mechanic: {} ({})", static_cast<uint32>(eff.Mechanic), EnumUtils::ToConstant(eff.Mechanic));
 
-            Targets targetA = eff.TargetA.GetTarget();
-            Targets targetB = eff.TargetB.GetTarget();
-
-            if (targetA)
-                handler->PSendSysMessage("  TargetA: {} ({})", static_cast<uint32>(targetA), GetTargetName(static_cast<uint32>(targetA)));
-            if (targetB)
-                handler->PSendSysMessage("  TargetB: {} ({})", static_cast<uint32>(targetB), GetTargetName(static_cast<uint32>(targetB)));
-
-            if (eff.RadiusEntry)
-                handler->PSendSysMessage("  Radius: {:.1f}", eff.RadiusEntry->RadiusMax);
-
-            if (eff.ChainTarget)
-                handler->PSendSysMessage("  ChainTarget: {}", eff.ChainTarget);
             if (eff.TriggerSpell)
                 handler->PSendSysMessage("  TriggerSpell: {}", eff.TriggerSpell);
             if (eff.Amplitude)
@@ -963,7 +962,62 @@ public:
                 handler->PSendSysMessage("  SpellClassMask: 0x{:08X} 0x{:08X} 0x{:08X}", eff.SpellClassMask[0], eff.SpellClassMask[1], eff.SpellClassMask[2]);
         }
 
-        handler->PSendSysMessage("================================");
+        handler->PSendSysMessage("===========================");
+        return true;
+    }
+
+    static bool HandleSpellInfoTargetsCommand(ChatHandler* handler, SpellInfo const* spell)
+    {
+        if (!spell)
+        {
+            handler->SendErrorMessage(LANG_COMMAND_NOSPELLFOUND);
+            return false;
+        }
+
+        int locale = handler->GetSessionDbcLocale();
+
+        handler->PSendSysMessage("====== SPELL TARGETS ======");
+        handler->PSendSysMessage("ID: {}", spell->Id);
+        handler->PSendSysMessage("Name: {}", spell->SpellName[locale]);
+
+        // Spell-level target info
+        if (spell->Targets)
+            handler->PSendSysMessage("Targets: 0x{:08X}", spell->Targets);
+        if (spell->TargetCreatureType)
+            handler->PSendSysMessage("TargetCreatureType: 0x{:08X}", spell->TargetCreatureType);
+        if (spell->MaxAffectedTargets)
+            handler->PSendSysMessage("MaxAffectedTargets: {}", spell->MaxAffectedTargets);
+        if (spell->MaxTargetLevel)
+            handler->PSendSysMessage("MaxTargetLevel: {}", spell->MaxTargetLevel);
+
+        // Per-effect target info
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        {
+            SpellEffectInfo const& eff = spell->Effects[i];
+
+            if (!eff.Effect)
+                continue;
+
+            Targets targetA = eff.TargetA.GetTarget();
+            Targets targetB = eff.TargetB.GetTarget();
+
+            if (!targetA && !targetB && !eff.RadiusEntry && !eff.ChainTarget)
+                continue;
+
+            handler->PSendSysMessage("--- Effect {} ---", i);
+
+            if (targetA)
+                handler->PSendSysMessage("  TargetA: {} ({})", static_cast<uint32>(targetA), GetTargetName(static_cast<uint32>(targetA)));
+            if (targetB)
+                handler->PSendSysMessage("  TargetB: {} ({})", static_cast<uint32>(targetB), GetTargetName(static_cast<uint32>(targetB)));
+
+            if (eff.RadiusEntry)
+                handler->PSendSysMessage("  Radius: {:.1f}", eff.RadiusEntry->RadiusMax);
+            if (eff.ChainTarget)
+                handler->PSendSysMessage("  ChainTarget: {}", eff.ChainTarget);
+        }
+
+        handler->PSendSysMessage("===========================");
         return true;
     }
 };
