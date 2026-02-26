@@ -743,9 +743,6 @@ public:
     template <typename EnumType>
     static void PrintSpellAttrFlags(ChatHandler* handler, char const* label, uint32 flags)
     {
-        if (!flags)
-            return;
-
         handler->PSendSysMessage("{}: 0x{:08X}", label, flags);
         for (auto attr : EnumUtils::Iterate<EnumType>())
             if (flags & static_cast<uint32>(attr))
@@ -762,8 +759,7 @@ public:
             handler->PSendSysMessage("Rank: {}", spell->Rank[locale]);
 
         handler->PSendSysMessage("Dispel: {} ({})", spell->Dispel, GetDispelName(spell->Dispel));
-        if (spell->Mechanic)
-            handler->PSendSysMessage("Mechanic: {} ({})", spell->Mechanic, EnumUtils::ToConstant(static_cast<Mechanics>(spell->Mechanic)));
+        handler->PSendSysMessage("Mechanic: {} ({})", spell->Mechanic, EnumUtils::ToConstant(static_cast<Mechanics>(spell->Mechanic)));
     }
 
     static void PrintAttributes(ChatHandler* handler, SpellInfo const* spell)
@@ -777,9 +773,9 @@ public:
         PrintSpellAttrFlags<SpellAttr6>(handler, "AttributesEx6", spell->AttributesEx6);
         PrintSpellAttrFlags<SpellAttr7>(handler, "AttributesEx7", spell->AttributesEx7);
 
+        handler->PSendSysMessage("AttributesCu: 0x{:08X}", spell->AttributesCu);
         if (spell->AttributesCu)
         {
-            handler->PSendSysMessage("AttributesCu: 0x{:08X}", spell->AttributesCu);
             if (spell->AttributesCu & SPELL_ATTR0_CU_ENCHANT_PROC)          handler->PSendSysMessage("  - SPELL_ATTR0_CU_ENCHANT_PROC");
             if (spell->AttributesCu & SPELL_ATTR0_CU_CONE_BACK)             handler->PSendSysMessage("  - SPELL_ATTR0_CU_CONE_BACK");
             if (spell->AttributesCu & SPELL_ATTR0_CU_CONE_LINE)             handler->PSendSysMessage("  - SPELL_ATTR0_CU_CONE_LINE");
@@ -814,10 +810,8 @@ public:
             if (spell->AttributesCu & SPELL_ATTR0_CU_BYPASS_MECHANIC_IMMUNITY) handler->PSendSysMessage("  - SPELL_ATTR0_CU_BYPASS_MECHANIC_IMMUNITY");
         }
 
-        if (spell->Stances)
-            handler->PSendSysMessage("Stances: 0x{:08X}", spell->Stances);
-        if (spell->StancesNot)
-            handler->PSendSysMessage("StancesNot: 0x{:08X}", spell->StancesNot);
+        handler->PSendSysMessage("Stances: 0x{:08X}", spell->Stances);
+        handler->PSendSysMessage("StancesNot: 0x{:08X}", spell->StancesNot);
     }
 
     static void PrintEffects(ChatHandler* handler, SpellInfo const* spell)
@@ -831,55 +825,30 @@ public:
 
             handler->PSendSysMessage("--- Effect {} ---", i);
             handler->PSendSysMessage("  Effect: {} ({})", eff.Effect, GetSpellEffectName(eff.Effect));
-
-            if (eff.ApplyAuraName)
-                handler->PSendSysMessage("  Aura: {} ({})", static_cast<uint32>(eff.ApplyAuraName), GetAuraTypeName(static_cast<uint32>(eff.ApplyAuraName)));
-
-            if (eff.BasePoints)
-                handler->PSendSysMessage("  BasePoints: {}", eff.BasePoints);
-            if (eff.DieSides)
-                handler->PSendSysMessage("  DieSides: {}", eff.DieSides);
-            if (eff.RealPointsPerLevel > 0.0f)
-                handler->PSendSysMessage("  RealPointsPerLevel: {:.4f}", eff.RealPointsPerLevel);
-            if (eff.PointsPerComboPoint > 0.0f)
-                handler->PSendSysMessage("  PointsPerComboPoint: {:.2f}", eff.PointsPerComboPoint);
-            if (eff.ValueMultiplier != 0.0f)
-                handler->PSendSysMessage("  ValueMultiplier: {:.4f}", eff.ValueMultiplier);
-            if (eff.DamageMultiplier != 0.0f)
-                handler->PSendSysMessage("  DamageMultiplier: {:.4f}", eff.DamageMultiplier);
-            if (eff.BonusMultiplier != 0.0f)
-                handler->PSendSysMessage("  BonusMultiplier: {:.4f}", eff.BonusMultiplier);
-
-            if (eff.MiscValue)
-                handler->PSendSysMessage("  MiscValue: {}", eff.MiscValue);
-            if (eff.MiscValueB)
-                handler->PSendSysMessage("  MiscValueB: {}", eff.MiscValueB);
-
-            if (eff.Mechanic)
-                handler->PSendSysMessage("  Mechanic: {} ({})", static_cast<uint32>(eff.Mechanic), EnumUtils::ToConstant(eff.Mechanic));
-
-            if (eff.TriggerSpell)
-                handler->PSendSysMessage("  TriggerSpell: {}", eff.TriggerSpell);
-            if (eff.Amplitude)
-                handler->PSendSysMessage("  Amplitude: {}", eff.Amplitude);
-            if (eff.ItemType)
-                handler->PSendSysMessage("  ItemType: {}", eff.ItemType);
-
-            if (eff.SpellClassMask)
-                handler->PSendSysMessage("  SpellClassMask: 0x{:08X} 0x{:08X} 0x{:08X}", eff.SpellClassMask[0], eff.SpellClassMask[1], eff.SpellClassMask[2]);
+            handler->PSendSysMessage("  Aura: {} ({})", static_cast<uint32>(eff.ApplyAuraName), GetAuraTypeName(static_cast<uint32>(eff.ApplyAuraName)));
+            handler->PSendSysMessage("  BasePoints: {}", eff.BasePoints);
+            handler->PSendSysMessage("  DieSides: {}", eff.DieSides);
+            handler->PSendSysMessage("  RealPointsPerLevel: {:.4f}", eff.RealPointsPerLevel);
+            handler->PSendSysMessage("  PointsPerComboPoint: {:.2f}", eff.PointsPerComboPoint);
+            handler->PSendSysMessage("  ValueMultiplier: {:.4f}", eff.ValueMultiplier);
+            handler->PSendSysMessage("  DamageMultiplier: {:.4f}", eff.DamageMultiplier);
+            handler->PSendSysMessage("  BonusMultiplier: {:.4f}", eff.BonusMultiplier);
+            handler->PSendSysMessage("  MiscValue: {}", eff.MiscValue);
+            handler->PSendSysMessage("  MiscValueB: {}", eff.MiscValueB);
+            handler->PSendSysMessage("  Mechanic: {} ({})", static_cast<uint32>(eff.Mechanic), EnumUtils::ToConstant(eff.Mechanic));
+            handler->PSendSysMessage("  TriggerSpell: {}", eff.TriggerSpell);
+            handler->PSendSysMessage("  Amplitude: {}", eff.Amplitude);
+            handler->PSendSysMessage("  ItemType: {}", eff.ItemType);
+            handler->PSendSysMessage("  SpellClassMask: 0x{:08X} 0x{:08X} 0x{:08X}", eff.SpellClassMask[0], eff.SpellClassMask[1], eff.SpellClassMask[2]);
         }
     }
 
     static void PrintTargets(ChatHandler* handler, SpellInfo const* spell)
     {
-        if (spell->Targets)
-            handler->PSendSysMessage("Targets: 0x{:08X}", spell->Targets);
-        if (spell->TargetCreatureType)
-            handler->PSendSysMessage("TargetCreatureType: 0x{:08X}", spell->TargetCreatureType);
-        if (spell->MaxAffectedTargets)
-            handler->PSendSysMessage("MaxAffectedTargets: {}", spell->MaxAffectedTargets);
-        if (spell->MaxTargetLevel)
-            handler->PSendSysMessage("MaxTargetLevel: {}", spell->MaxTargetLevel);
+        handler->PSendSysMessage("Targets: 0x{:08X}", spell->Targets);
+        handler->PSendSysMessage("TargetCreatureType: 0x{:08X}", spell->TargetCreatureType);
+        handler->PSendSysMessage("MaxAffectedTargets: {}", spell->MaxAffectedTargets);
+        handler->PSendSysMessage("MaxTargetLevel: {}", spell->MaxTargetLevel);
 
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
@@ -891,20 +860,13 @@ public:
             Targets targetA = eff.TargetA.GetTarget();
             Targets targetB = eff.TargetB.GetTarget();
 
-            if (!targetA && !targetB && !eff.RadiusEntry && !eff.ChainTarget)
-                continue;
-
             handler->PSendSysMessage("--- Effect {} ---", i);
-
-            if (targetA)
-                handler->PSendSysMessage("  TargetA: {} ({})", static_cast<uint32>(targetA), GetTargetName(static_cast<uint32>(targetA)));
-            if (targetB)
-                handler->PSendSysMessage("  TargetB: {} ({})", static_cast<uint32>(targetB), GetTargetName(static_cast<uint32>(targetB)));
+            handler->PSendSysMessage("  TargetA: {} ({})", static_cast<uint32>(targetA), GetTargetName(static_cast<uint32>(targetA)));
+            handler->PSendSysMessage("  TargetB: {} ({})", static_cast<uint32>(targetB), GetTargetName(static_cast<uint32>(targetB)));
 
             if (eff.RadiusEntry)
                 handler->PSendSysMessage("  Radius: {:.1f}", eff.RadiusEntry->RadiusMax);
-            if (eff.ChainTarget)
-                handler->PSendSysMessage("  ChainTarget: {}", eff.ChainTarget);
+            handler->PSendSysMessage("  ChainTarget: {}", eff.ChainTarget);
         }
     }
 
@@ -921,41 +883,28 @@ public:
                 spell->RangeEntry->RangeMin[0], spell->RangeEntry->RangeMax[0],
                 spell->RangeEntry->RangeMin[1], spell->RangeEntry->RangeMax[1]);
 
-        if (spell->RecoveryTime)
-            handler->PSendSysMessage("RecoveryTime: {} ms", spell->RecoveryTime);
-        if (spell->CategoryRecoveryTime)
-            handler->PSendSysMessage("CategoryRecoveryTime: {} ms", spell->CategoryRecoveryTime);
-        if (spell->StartRecoveryTime)
-            handler->PSendSysMessage("StartRecoveryTime: {} ms (Category: {})", spell->StartRecoveryTime, spell->StartRecoveryCategory);
+        handler->PSendSysMessage("RecoveryTime: {} ms", spell->RecoveryTime);
+        handler->PSendSysMessage("CategoryRecoveryTime: {} ms", spell->CategoryRecoveryTime);
+        handler->PSendSysMessage("StartRecoveryTime: {} ms (Category: {})", spell->StartRecoveryTime, spell->StartRecoveryCategory);
 
-        if (spell->InterruptFlags)
-            handler->PSendSysMessage("InterruptFlags: 0x{:08X}", spell->InterruptFlags);
-        if (spell->AuraInterruptFlags)
-            handler->PSendSysMessage("AuraInterruptFlags: 0x{:08X}", spell->AuraInterruptFlags);
-        if (spell->ChannelInterruptFlags)
-            handler->PSendSysMessage("ChannelInterruptFlags: 0x{:08X}", spell->ChannelInterruptFlags);
+        handler->PSendSysMessage("InterruptFlags: 0x{:08X}", spell->InterruptFlags);
+        handler->PSendSysMessage("AuraInterruptFlags: 0x{:08X}", spell->AuraInterruptFlags);
+        handler->PSendSysMessage("ChannelInterruptFlags: 0x{:08X}", spell->ChannelInterruptFlags);
 
-        if (spell->ProcFlags)
-            handler->PSendSysMessage("ProcFlags: 0x{:08X}", spell->ProcFlags);
+        handler->PSendSysMessage("ProcFlags: 0x{:08X}", spell->ProcFlags);
         handler->PSendSysMessage("ProcChance: {}%", spell->ProcChance);
-        if (spell->ProcCharges)
-            handler->PSendSysMessage("ProcCharges: {}", spell->ProcCharges);
+        handler->PSendSysMessage("ProcCharges: {}", spell->ProcCharges);
 
         handler->PSendSysMessage("SpellLevel: {}, BaseLevel: {}, MaxLevel: {}", spell->SpellLevel, spell->BaseLevel, spell->MaxLevel);
 
         handler->PSendSysMessage("PowerType: {} ({})", spell->PowerType, GetPowerName(spell->PowerType));
-        if (spell->ManaCost)
-            handler->PSendSysMessage("ManaCost: {}", spell->ManaCost);
-        if (spell->ManaCostPercentage)
-            handler->PSendSysMessage("ManaCostPercentage: {}", spell->ManaCostPercentage);
-        if (spell->ManaPerSecond)
-            handler->PSendSysMessage("ManaPerSecond: {}", spell->ManaPerSecond);
+        handler->PSendSysMessage("ManaCost: {}", spell->ManaCost);
+        handler->PSendSysMessage("ManaCostPercentage: {}", spell->ManaCostPercentage);
+        handler->PSendSysMessage("ManaPerSecond: {}", spell->ManaPerSecond);
 
-        if (spell->Speed > 0.0f)
-            handler->PSendSysMessage("Speed: {:.2f}", spell->Speed);
+        handler->PSendSysMessage("Speed: {:.2f}", spell->Speed);
 
-        if (spell->StackAmount)
-            handler->PSendSysMessage("StackAmount: {}", spell->StackAmount);
+        handler->PSendSysMessage("StackAmount: {}", spell->StackAmount);
 
         if (spell->EquippedItemClass >= 0)
             handler->PSendSysMessage("EquippedItemClass: {}, SubClassMask: 0x{:08X}, InvTypeMask: 0x{:08X}",
