@@ -654,7 +654,7 @@ public:
             case TARGET_UNK_DEST_AREA_UNK_107: return "TARGET_UNK_DEST_AREA_UNK_107";
             case TARGET_GAMEOBJECT_CONE: return "TARGET_GAMEOBJECT_CONE";
             case TARGET_DEST_UNK_110: return "TARGET_DEST_UNK_110";
-            default: return "UNKNOWN_TARGET";
+            default: return "TARGET_NONE";
         }
     }
 
