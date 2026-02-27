@@ -1,5 +1,5 @@
 -- Add lfg cooldown command to the command table
-DELETE FROM `command` WHERE `name` IN ('lfg cooldown', 'lfg cooldown clear');
+DELETE FROM `command` WHERE `name` IN ('lfg cooldown');
 INSERT INTO `command` (`name`, `security`, `help`) VALUES
 ('lfg cooldown', 3, 'Syntax: .lfg cooldown\nClears all LFG dungeon cooldowns for all players.');
 
