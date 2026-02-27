@@ -136,7 +136,7 @@ public:
     static bool HandleLfgCooldownClearCommand(ChatHandler* handler)
     {
         sLFGMgr->ClearDungeonCooldowns();
-        handler->SendSysMessage("LFG dungeon cooldowns cleared for all players.");
+        handler->SendSysMessage(LANG_LFG_COOLDOWN_CLEARED);
         return true;
     }
 };

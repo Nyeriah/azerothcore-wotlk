@@ -1230,6 +1230,7 @@ enum AcoreStrings
     LANG_LFG_ROLE_LEADER                = 9997,
     LANG_LFG_ROLE_NONE                  = 9998,
     LANG_LFG_ERROR                      = 9999,
+    LANG_LFG_COOLDOWN_CLEARED           = 10000,
 
     // Use for not-in-offcial-sources patches
     //                                    10000-10999
