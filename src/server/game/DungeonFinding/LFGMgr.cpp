@@ -165,53 +165,6 @@ namespace lfg
         LOG_INFO("server.loading", " ");
     }
 
-    void LFGMgr::LoadDungeonCooldowns()
-    {
-        uint32 oldMSTime = getMSTime();
-        DungeonCooldownStore.clear();
-
-        if (!sWorld->getBoolConfig(CONFIG_LFG_DUNGEON_COOLDOWN))
-        {
-            LOG_INFO("server.loading", ">> LFG Dungeon Cooldown system is disabled.");
-            LOG_INFO("server.loading", " ");
-            return;
-        }
-
-        time_t expireTime = GameTime::GetGameTime().count() - GetDungeonCooldownDuration();
-
-        // Clean up old entries
-        CharacterDatabasePreparedStatement* stmtDel = CharacterDatabase.GetPreparedStatement(CHAR_DEL_LFG_DUNGEON_COOLDOWNS);
-        stmtDel->SetData(0, uint32(expireTime));
-        CharacterDatabase.Execute(stmtDel);
-
-        // Load valid entries
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_LFG_DUNGEON_COOLDOWNS);
-        stmt->SetData(0, uint32(expireTime));
-        QueryResult result = CharacterDatabase.Query(stmt);
-
-        if (!result)
-        {
-            LOG_INFO("server.loading", ">> Loaded 0 LFG Dungeon Cooldowns.");
-            LOG_INFO("server.loading", " ");
-            return;
-        }
-
-        uint32 loadCount = 0;
-        do
-        {
-            Field* fields = result->Fetch();
-            uint32 guid = fields[0].Get<uint32>();
-            uint32 dungeonId = fields[1].Get<uint32>();
-            time_t completionTime = time_t(fields[2].Get<uint32>());
-
-            DungeonCooldownStore[guid][dungeonId] = completionTime;
-            ++loadCount;
-        } while (result->NextRow());
-
-        LOG_INFO("server.loading", ">> Loaded {} LFG Dungeon Cooldowns in {} ms", loadCount, GetMSTimeDiffToNow(oldMSTime));
-        LOG_INFO("server.loading", " ");
-    }
-
     void LFGMgr::AddDungeonCooldown(ObjectGuid guid, uint32 dungeonId)
     {
         if (!sWorld->getBoolConfig(CONFIG_LFG_DUNGEON_COOLDOWN))
@@ -221,12 +174,6 @@ namespace lfg
         uint32 guidLow = guid.GetCounter();
 
         DungeonCooldownStore[guidLow][dungeonId] = now;
-
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_LFG_DUNGEON_COOLDOWN);
-        stmt->SetData(0, guidLow);
-        stmt->SetData(1, dungeonId);
-        stmt->SetData(2, uint32(now));
-        CharacterDatabase.Execute(stmt);
     }
 
     void LFGMgr::CleanupDungeonCooldowns()
@@ -251,10 +198,11 @@ namespace lfg
             else
                 ++itPlayer;
         }
+    }
 
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_LFG_DUNGEON_COOLDOWNS);
-        stmt->SetData(0, uint32(expireTime));
-        CharacterDatabase.Execute(stmt);
+    void LFGMgr::ClearDungeonCooldowns()
+    {
+        DungeonCooldownStore.clear();
     }
 
     uint32 LFGMgr::GetDungeonCooldownDuration() const

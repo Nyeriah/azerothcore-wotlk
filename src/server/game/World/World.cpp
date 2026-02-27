@@ -669,9 +669,6 @@ void World::SetInitialWorldSettings()
     LOG_INFO("server.loading", "Loading LFG Rewards...");
     sLFGMgr->LoadRewards();
 
-    LOG_INFO("server.loading", "Loading LFG Dungeon Cooldowns...");
-    sLFGMgr->LoadDungeonCooldowns();
-
     LOG_INFO("server.loading", "Loading Graveyard-Zone Links...");
     sGraveyard->LoadGraveyardZones();
 

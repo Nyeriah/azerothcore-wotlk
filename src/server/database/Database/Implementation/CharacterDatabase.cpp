@@ -331,12 +331,6 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_REP_LFG_DATA, "REPLACE INTO lfg_data (guid, dungeon, state) VALUES (?, ?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_LFG_DATA, "DELETE FROM lfg_data WHERE guid = ?", CONNECTION_ASYNC);
 
-    // LFG Dungeon Cooldowns
-    PrepareStatement(CHAR_SEL_LFG_DUNGEON_COOLDOWNS, "SELECT guid, dungeonId, completionTime FROM lfg_dungeon_cooldown WHERE completionTime > ?", CONNECTION_SYNCH);
-    PrepareStatement(CHAR_INS_LFG_DUNGEON_COOLDOWN, "REPLACE INTO lfg_dungeon_cooldown (guid, dungeonId, completionTime) VALUES (?, ?, ?)", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_DEL_LFG_DUNGEON_COOLDOWNS, "DELETE FROM lfg_dungeon_cooldown WHERE completionTime <= ?", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_DEL_LFG_DUNGEON_COOLDOWNS_BY_GUID, "DELETE FROM lfg_dungeon_cooldown WHERE guid = ?", CONNECTION_ASYNC);
-
     // Player saving
     PrepareStatement(CHAR_INS_CHARACTER, "INSERT INTO characters (guid, account, name, race, class, gender, level, xp, money, skin, face, hairStyle, hairColor, facialStyle, bankSlots, restState, playerFlags, "
                      "map, instance_id, instance_mode_mask, position_x, position_y, position_z, orientation, trans_x, trans_y, trans_z, trans_o, transguid, "

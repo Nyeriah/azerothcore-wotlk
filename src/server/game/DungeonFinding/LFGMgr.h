@@ -450,10 +450,10 @@ namespace lfg
         void LoadRewards();
         /// Loads dungeons from dbc and adds teleport coords
         void LoadLFGDungeons(bool reload = false);
-        /// Loads dungeon cooldowns from DB
-        void LoadDungeonCooldowns();
         /// Filters out recently completed dungeons from the proposal set for the given players
         LfgDungeonSet FilterCooldownDungeons(LfgDungeonSet const& dungeons, LfgRolesMap const& players);
+        /// Clears all dungeon cooldowns for all players
+        void ClearDungeonCooldowns();
 
         // Multiple files
         /// Check if given guid applied for random dungeon

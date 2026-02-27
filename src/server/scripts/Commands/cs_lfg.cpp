@@ -45,13 +45,19 @@ public:
 
     ChatCommandTable GetCommands() const override
     {
+        static ChatCommandTable lfgCooldownTable =
+        {
+            { "clear", HandleLfgCooldownClearCommand, SEC_ADMINISTRATOR, Console::Yes },
+        };
+
         static ChatCommandTable lfgCommandTable =
         {
-            { "player",  HandleLfgPlayerInfoCommand, SEC_MODERATOR,     Console::No },
-            { "group",   HandleLfgGroupInfoCommand,  SEC_MODERATOR,     Console::No },
-            { "queue",   HandleLfgQueueInfoCommand,  SEC_MODERATOR,     Console::Yes },
-            { "clean",   HandleLfgCleanCommand,      SEC_ADMINISTRATOR, Console::Yes },
-            { "options", HandleLfgOptionsCommand,    SEC_GAMEMASTER,    Console::Yes },
+            { "player",   HandleLfgPlayerInfoCommand, SEC_MODERATOR,     Console::No },
+            { "group",    HandleLfgGroupInfoCommand,  SEC_MODERATOR,     Console::No },
+            { "queue",    HandleLfgQueueInfoCommand,  SEC_MODERATOR,     Console::Yes },
+            { "clean",    HandleLfgCleanCommand,      SEC_ADMINISTRATOR, Console::Yes },
+            { "options",  HandleLfgOptionsCommand,    SEC_GAMEMASTER,    Console::Yes },
+            { "cooldown", lfgCooldownTable },
         };
 
         static ChatCommandTable commandTable =
@@ -124,6 +130,13 @@ public:
     {
         handler->PSendSysMessage(LANG_LFG_CLEAN);
         sLFGMgr->Clean();
+        return true;
+    }
+
+    static bool HandleLfgCooldownClearCommand(ChatHandler* handler)
+    {
+        sLFGMgr->ClearDungeonCooldowns();
+        handler->SendSysMessage("LFG dungeon cooldowns cleared for all players.");
         return true;
     }
 };
