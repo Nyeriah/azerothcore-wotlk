@@ -167,7 +167,7 @@ namespace lfg
 
     void LFGMgr::AddDungeonCooldown(ObjectGuid guid, uint32 dungeonId)
     {
-        if (!sWorld->getIntConfig(CONFIG_LFG_DUNGEON_COOLDOWN))
+        if (!sWorld->getIntConfig(CONFIG_LFG_DUNGEON_SELECTION_COOLDOWN))
             return;
 
         time_t now = GameTime::GetGameTime().count();
@@ -178,7 +178,7 @@ namespace lfg
 
     void LFGMgr::CleanupDungeonCooldowns()
     {
-        if (!sWorld->getIntConfig(CONFIG_LFG_DUNGEON_COOLDOWN))
+        if (!sWorld->getIntConfig(CONFIG_LFG_DUNGEON_SELECTION_COOLDOWN))
             return;
 
         time_t expireTime = GameTime::GetGameTime().count() - GetDungeonCooldownDuration();
@@ -207,12 +207,12 @@ namespace lfg
 
     uint32 LFGMgr::GetDungeonCooldownDuration() const
     {
-        return sWorld->getIntConfig(CONFIG_LFG_DUNGEON_COOLDOWN) * MINUTE;
+        return sWorld->getIntConfig(CONFIG_LFG_DUNGEON_SELECTION_COOLDOWN) * MINUTE;
     }
 
     LfgDungeonSet LFGMgr::FilterCooldownDungeons(LfgDungeonSet const& dungeons, LfgRolesMap const& players)
     {
-        if (!sWorld->getIntConfig(CONFIG_LFG_DUNGEON_COOLDOWN))
+        if (!sWorld->getIntConfig(CONFIG_LFG_DUNGEON_SELECTION_COOLDOWN))
             return dungeons;
 
         time_t expireTime = GameTime::GetGameTime().count() - GetDungeonCooldownDuration();
