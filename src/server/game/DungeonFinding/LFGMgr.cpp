@@ -177,8 +177,7 @@ namespace lfg
             return;
         }
 
-        uint32 cooldownTime = sWorld->getIntConfig(CONFIG_LFG_DUNGEON_COOLDOWN_TIME) * MINUTE;
-        time_t expireTime = GameTime::GetGameTime().count() - cooldownTime;
+        time_t expireTime = GameTime::GetGameTime().count() - GetDungeonCooldownDuration();
 
         // Clean up old entries
         CharacterDatabasePreparedStatement* stmtDel = CharacterDatabase.GetPreparedStatement(CHAR_DEL_LFG_DUNGEON_COOLDOWNS);
@@ -232,9 +231,10 @@ namespace lfg
 
     void LFGMgr::CleanupDungeonCooldowns()
     {
-        uint32 cooldownTime = sWorld->getIntConfig(CONFIG_LFG_DUNGEON_COOLDOWN_TIME) * MINUTE;
-        time_t now = GameTime::GetGameTime().count();
-        time_t expireTime = now - cooldownTime;
+        if (!sWorld->getBoolConfig(CONFIG_LFG_DUNGEON_COOLDOWN))
+            return;
+
+        time_t expireTime = GameTime::GetGameTime().count() - GetDungeonCooldownDuration();
 
         for (auto itPlayer = DungeonCooldownStore.begin(); itPlayer != DungeonCooldownStore.end(); )
         {
@@ -257,14 +257,17 @@ namespace lfg
         CharacterDatabase.Execute(stmt);
     }
 
+    uint32 LFGMgr::GetDungeonCooldownDuration() const
+    {
+        return sWorld->getIntConfig(CONFIG_LFG_DUNGEON_COOLDOWN_TIME) * MINUTE;
+    }
+
     LfgDungeonSet LFGMgr::FilterCooldownDungeons(LfgDungeonSet const& dungeons, LfgRolesMap const& players)
     {
         if (!sWorld->getBoolConfig(CONFIG_LFG_DUNGEON_COOLDOWN))
             return dungeons;
 
-        uint32 cooldownTime = sWorld->getIntConfig(CONFIG_LFG_DUNGEON_COOLDOWN_TIME) * MINUTE;
-        time_t now = GameTime::GetGameTime().count();
-        time_t expireTime = now - cooldownTime;
+        time_t expireTime = GameTime::GetGameTime().count() - GetDungeonCooldownDuration();
 
         LfgDungeonSet filtered;
         for (uint32 dungeonId : dungeons)
@@ -291,7 +294,10 @@ namespace lfg
 
         // If all dungeons are on cooldown, return original set to avoid blocking the queue
         if (filtered.empty())
+        {
+            LOG_DEBUG("lfg", "LFGMgr::FilterCooldownDungeons: All {} dungeons on cooldown for group, bypassing cooldown filter", dungeons.size());
             return dungeons;
+        }
 
         return filtered;
     }
