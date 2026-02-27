@@ -3405,6 +3405,27 @@ DungeonFinder.CastDeserter = 1
 DungeonFinder.AllowCompleted = 1
 
 #
+#    DungeonFinder.DungeonCooldown
+#
+#        Description: If enabled, players who complete a random dungeon via LFG will have a cooldown
+#                     preventing them from being assigned the same dungeon again for a configurable
+#                     duration. This reduces the chance of getting the same dungeon in a row.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+DungeonFinder.DungeonCooldown = 0
+
+#
+#    DungeonFinder.DungeonCooldownTime
+#
+#        Description: Duration in minutes for the dungeon cooldown when DungeonFinder.DungeonCooldown
+#                     is enabled. After completing a dungeon via LFG, the player will not be assigned
+#                     the same dungeon for this duration.
+#        Default:     60
+
+DungeonFinder.DungeonCooldownTime = 60
+
+#
 ###################################################################################################
 
 ###################################################################################################

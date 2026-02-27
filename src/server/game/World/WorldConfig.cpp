@@ -562,6 +562,8 @@ void WorldConfig::BuildConfigCache()
     SetConfigValue<uint32>(CONFIG_LFG_OPTIONSMASK, "DungeonFinder.OptionsMask", 5);
     SetConfigValue<bool>(CONFIG_LFG_CAST_DESERTER, "DungeonFinder.CastDeserter", true);
     SetConfigValue<bool>(CONFIG_LFG_ALLOW_COMPLETED, "DungeonFinder.AllowCompleted", true);
+    SetConfigValue<bool>(CONFIG_LFG_DUNGEON_COOLDOWN, "DungeonFinder.DungeonCooldown", false);
+    SetConfigValue<uint32>(CONFIG_LFG_DUNGEON_COOLDOWN_TIME, "DungeonFinder.DungeonCooldownTime", 60);
 
     // DBC_ItemAttributes
     SetConfigValue<bool>(CONFIG_DBC_ENFORCE_ITEM_ATTRIBUTES, "DBC.EnforceItemAttributes", true);

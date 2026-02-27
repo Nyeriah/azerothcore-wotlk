@@ -165,6 +165,137 @@ namespace lfg
         LOG_INFO("server.loading", " ");
     }
 
+    void LFGMgr::LoadDungeonCooldowns()
+    {
+        uint32 oldMSTime = getMSTime();
+        DungeonCooldownStore.clear();
+
+        if (!sWorld->getBoolConfig(CONFIG_LFG_DUNGEON_COOLDOWN))
+        {
+            LOG_INFO("server.loading", ">> LFG Dungeon Cooldown system is disabled.");
+            LOG_INFO("server.loading", " ");
+            return;
+        }
+
+        uint32 cooldownTime = sWorld->getIntConfig(CONFIG_LFG_DUNGEON_COOLDOWN_TIME) * MINUTE;
+        time_t expireTime = GameTime::GetGameTime().count() - cooldownTime;
+
+        // Clean up old entries
+        CharacterDatabasePreparedStatement* stmtDel = CharacterDatabase.GetPreparedStatement(CHAR_DEL_LFG_DUNGEON_COOLDOWNS);
+        stmtDel->SetData(0, uint32(expireTime));
+        CharacterDatabase.Execute(stmtDel);
+
+        // Load valid entries
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_LFG_DUNGEON_COOLDOWNS);
+        stmt->SetData(0, uint32(expireTime));
+        QueryResult result = CharacterDatabase.Query(stmt);
+
+        if (!result)
+        {
+            LOG_INFO("server.loading", ">> Loaded 0 LFG Dungeon Cooldowns.");
+            LOG_INFO("server.loading", " ");
+            return;
+        }
+
+        uint32 loadCount = 0;
+        do
+        {
+            Field* fields = result->Fetch();
+            uint32 guid = fields[0].Get<uint32>();
+            uint32 dungeonId = fields[1].Get<uint32>();
+            time_t completionTime = time_t(fields[2].Get<uint32>());
+
+            DungeonCooldownStore[guid][dungeonId] = completionTime;
+            ++loadCount;
+        } while (result->NextRow());
+
+        LOG_INFO("server.loading", ">> Loaded {} LFG Dungeon Cooldowns in {} ms", loadCount, GetMSTimeDiffToNow(oldMSTime));
+        LOG_INFO("server.loading", " ");
+    }
+
+    void LFGMgr::AddDungeonCooldown(ObjectGuid guid, uint32 dungeonId)
+    {
+        if (!sWorld->getBoolConfig(CONFIG_LFG_DUNGEON_COOLDOWN))
+            return;
+
+        time_t now = GameTime::GetGameTime().count();
+        uint32 guidLow = guid.GetCounter();
+
+        DungeonCooldownStore[guidLow][dungeonId] = now;
+
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_LFG_DUNGEON_COOLDOWN);
+        stmt->SetData(0, guidLow);
+        stmt->SetData(1, dungeonId);
+        stmt->SetData(2, uint32(now));
+        CharacterDatabase.Execute(stmt);
+    }
+
+    void LFGMgr::CleanupDungeonCooldowns()
+    {
+        uint32 cooldownTime = sWorld->getIntConfig(CONFIG_LFG_DUNGEON_COOLDOWN_TIME) * MINUTE;
+        time_t now = GameTime::GetGameTime().count();
+        time_t expireTime = now - cooldownTime;
+
+        for (auto itPlayer = DungeonCooldownStore.begin(); itPlayer != DungeonCooldownStore.end(); )
+        {
+            for (auto itDungeon = itPlayer->second.begin(); itDungeon != itPlayer->second.end(); )
+            {
+                if (itDungeon->second <= expireTime)
+                    itDungeon = itPlayer->second.erase(itDungeon);
+                else
+                    ++itDungeon;
+            }
+
+            if (itPlayer->second.empty())
+                itPlayer = DungeonCooldownStore.erase(itPlayer);
+            else
+                ++itPlayer;
+        }
+
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_LFG_DUNGEON_COOLDOWNS);
+        stmt->SetData(0, uint32(expireTime));
+        CharacterDatabase.Execute(stmt);
+    }
+
+    LfgDungeonSet LFGMgr::FilterCooldownDungeons(LfgDungeonSet const& dungeons, LfgRolesMap const& players)
+    {
+        if (!sWorld->getBoolConfig(CONFIG_LFG_DUNGEON_COOLDOWN))
+            return dungeons;
+
+        uint32 cooldownTime = sWorld->getIntConfig(CONFIG_LFG_DUNGEON_COOLDOWN_TIME) * MINUTE;
+        time_t now = GameTime::GetGameTime().count();
+        time_t expireTime = now - cooldownTime;
+
+        LfgDungeonSet filtered;
+        for (uint32 dungeonId : dungeons)
+        {
+            bool onCooldown = false;
+            for (auto const& playerPair : players)
+            {
+                uint32 guidLow = playerPair.first.GetCounter();
+                auto itPlayer = DungeonCooldownStore.find(guidLow);
+                if (itPlayer != DungeonCooldownStore.end())
+                {
+                    auto itDungeon = itPlayer->second.find(dungeonId);
+                    if (itDungeon != itPlayer->second.end() && itDungeon->second > expireTime)
+                    {
+                        onCooldown = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!onCooldown)
+                filtered.insert(dungeonId);
+        }
+
+        // If all dungeons are on cooldown, return original set to avoid blocking the queue
+        if (filtered.empty())
+            return dungeons;
+
+        return filtered;
+    }
+
     LFGDungeonData const* LFGMgr::GetLFGDungeon(uint32 id)
     {
         LFGDungeonContainer::const_iterator itr = LfgDungeonStore.find(id);
@@ -329,6 +460,9 @@ namespace lfg
                     BootsStore.erase(itBoot);
                 }
             }
+
+            // Cleanup expired dungeon cooldowns
+            CleanupDungeonCooldowns();
         }
         else if (task == 1)
         {
@@ -2253,6 +2387,9 @@ namespace lfg
                 rDungeonId = (*dungeons.begin());
 
             SetState(guid, LFG_STATE_FINISHED_DUNGEON);
+
+            // Record dungeon cooldown for this player (the actual dungeon completed, not the random entry)
+            AddDungeonCooldown(guid, dungeonId);
 
             // Give rewards only if its a random dungeon
             LFGDungeonData const* dungeon = GetLFGDungeon(rDungeonId);
