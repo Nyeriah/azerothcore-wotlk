@@ -2342,9 +2342,6 @@ namespace lfg
 
             SetState(guid, LFG_STATE_FINISHED_DUNGEON);
 
-            // Record dungeon cooldown for this player (the actual dungeon completed, not the random entry)
-            AddDungeonCooldown(guid, dungeonId);
-
             // Give rewards only if its a random dungeon
             LFGDungeonData const* dungeon = GetLFGDungeon(rDungeonId);
 
@@ -2353,6 +2350,9 @@ namespace lfg
                 LOG_DEBUG("lfg", "LFGMgr::FinishDungeon: [{}] dungeon {} is not random or seasonal", guid.ToString(), rDungeonId);
                 continue;
             }
+
+            // Record dungeon cooldown for this player (the actual dungeon completed, not the random entry)
+            AddDungeonCooldown(guid, dungeonId);
 
             Player* player = ObjectAccessor::FindPlayer(guid);
             if (!player || player->FindMap() != currMap) // pussywizard: currMap - multithreading crash if on other map (map id check is not enough, binding system is not reliable)
