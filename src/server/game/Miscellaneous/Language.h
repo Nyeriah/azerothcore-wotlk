@@ -1230,7 +1230,6 @@ enum AcoreStrings
     LANG_LFG_ROLE_LEADER                = 9997,
     LANG_LFG_ROLE_NONE                  = 9998,
     LANG_LFG_ERROR                      = 9999,
-    LANG_LFG_COOLDOWN_CLEARED           = 10000,
 
     // Use for not-in-offcial-sources patches
     //                                    10000-10999
@@ -1347,6 +1346,8 @@ enum AcoreStrings
     // Continue show Ban in world (ip)
     LANG_BAN_IP_YOUBANNEDMESSAGE_WORLD            = 11017,
     LANG_BAN_IP_YOUPERMBANNEDMESSAGE_WORLD        = 11018,
+
+    LANG_LFG_COOLDOWN_CLEARED                     = 11019,
 
     LANG_MUTED_PLAYER                             = 30000, // Mute for player 2 hour
 
