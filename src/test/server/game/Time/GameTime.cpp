@@ -15,50 +15,49 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Timer.h"
+#include "GameTime.h"
 #include "gtest/gtest.h"
 
 #include <thread>
 
-TEST(AcoreTime, Now)
+TEST(GameTimeTest, Elapsed)
 {
-    auto before = std::chrono::steady_clock::now();
-    auto now = Acore::Time::Now();
-    auto after = std::chrono::steady_clock::now();
-    EXPECT_GE(now, before);
-    EXPECT_LE(now, after);
-}
-
-TEST(AcoreTime, Elapsed)
-{
-    auto start = Acore::Time::Now();
+    GameTime::UpdateGameTimers();
+    auto start = GameTime::Now();
     std::this_thread::sleep_for(50ms);
-    auto elapsed = Acore::Time::Elapsed(start);
+    GameTime::UpdateGameTimers();
+    auto elapsed = GameTime::Elapsed(start);
     EXPECT_GE(elapsed, 50ms);
 }
 
-TEST(AcoreTime, HasElapsedTrue)
+TEST(GameTimeTest, HasElapsedTrue)
 {
-    auto start = Acore::Time::Now();
+    GameTime::UpdateGameTimers();
+    auto start = GameTime::Now();
     std::this_thread::sleep_for(50ms);
-    EXPECT_TRUE(Acore::Time::HasElapsed(start, 25ms));
+    GameTime::UpdateGameTimers();
+    EXPECT_TRUE(GameTime::HasElapsed(start, 25ms));
 }
 
-TEST(AcoreTime, HasElapsedFalse)
+TEST(GameTimeTest, HasElapsedFalse)
 {
-    auto start = Acore::Time::Now();
-    EXPECT_FALSE(Acore::Time::HasElapsed(start, 10s));
+    GameTime::UpdateGameTimers();
+    auto start = GameTime::Now();
+    EXPECT_FALSE(GameTime::HasElapsed(start, 10s));
 }
 
-TEST(AcoreTime, HasElapsedWithSeconds)
+TEST(GameTimeTest, HasElapsedWithSeconds)
 {
-    auto start = Acore::Time::Now();
-    EXPECT_FALSE(Acore::Time::HasElapsed(start, 1s));
+    GameTime::UpdateGameTimers();
+    auto start = GameTime::Now();
+    EXPECT_FALSE(GameTime::HasElapsed(start, 1s));
 }
 
-TEST(AcoreTime, HasElapsedWithMicroseconds)
+TEST(GameTimeTest, HasElapsedWithMicroseconds)
 {
-    auto start = Acore::Time::Now();
+    GameTime::UpdateGameTimers();
+    auto start = GameTime::Now();
     std::this_thread::sleep_for(100us);
-    EXPECT_TRUE(Acore::Time::HasElapsed(start, Microseconds(1)));
+    GameTime::UpdateGameTimers();
+    EXPECT_TRUE(GameTime::HasElapsed(start, Microseconds(1)));
 }

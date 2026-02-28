@@ -68,22 +68,6 @@ namespace Acore::Time
     AC_COMMON_API uint32 GetDayInYear(Seconds time = 0s);    // days since January 1 - [0, 365]
     AC_COMMON_API uint32 GetMonth(Seconds time = 0s);        // months since January - [0, 11]
     AC_COMMON_API uint32 GetYear(Seconds time = 0s);         // years since 1900
-
-    inline TimePoint Now()
-    {
-        return std::chrono::steady_clock::now();
-    }
-
-    inline Microseconds Elapsed(TimePoint start)
-    {
-        return std::chrono::duration_cast<Microseconds>(Now() - start);
-    }
-
-    template<class T>
-    inline bool HasElapsed(TimePoint start, T duration)
-    {
-        return (Now() - start) >= duration;
-    }
 }
 
 AC_COMMON_API struct tm* localtime_r(time_t const* time, struct tm* result);
