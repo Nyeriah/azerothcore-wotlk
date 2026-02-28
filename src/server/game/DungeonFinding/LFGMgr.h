@@ -642,12 +642,12 @@ namespace lfg
         bool m_Testing;
 
         // Dungeon cooldown system - prevents same dungeon being assigned in a row
-        typedef std::unordered_map<uint32 /*dungeonId*/, time_t /*completionTime*/> LfgDungeonCooldownMap;
+        typedef std::unordered_map<uint32 /*dungeonId*/, TimePoint /*completionTime*/> LfgDungeonCooldownMap;
         typedef std::unordered_map<uint32 /*playerGuidLow*/, LfgDungeonCooldownMap> LfgDungeonCooldownContainer;
         LfgDungeonCooldownContainer DungeonCooldownStore;  ///< Stores dungeon cooldowns per player
         void AddDungeonCooldown(ObjectGuid guid, uint32 dungeonId);
         void CleanupDungeonCooldowns();
-        [[nodiscard]] uint32 GetDungeonCooldownDuration() const;
+        [[nodiscard]] Seconds GetDungeonCooldownDuration() const;
     };
 
     template <typename T, FMT_ENABLE_IF(std::is_enum_v<T>)>

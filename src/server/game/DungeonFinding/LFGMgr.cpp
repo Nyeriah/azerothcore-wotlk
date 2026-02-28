@@ -170,10 +170,9 @@ namespace lfg
         if (!sWorld->getIntConfig(CONFIG_LFG_DUNGEON_SELECTION_COOLDOWN))
             return;
 
-        time_t now = GameTime::GetGameTime().count();
         uint32 guidLow = guid.GetCounter();
 
-        DungeonCooldownStore[guidLow][dungeonId] = now;
+        DungeonCooldownStore[guidLow][dungeonId] = GameTime::Now();
     }
 
     void LFGMgr::CleanupDungeonCooldowns()
@@ -181,13 +180,13 @@ namespace lfg
         if (!sWorld->getIntConfig(CONFIG_LFG_DUNGEON_SELECTION_COOLDOWN))
             return;
 
-        time_t expireTime = GameTime::GetGameTime().count() - GetDungeonCooldownDuration();
+        Seconds cooldownDuration = GetDungeonCooldownDuration();
 
         for (auto itPlayer = DungeonCooldownStore.begin(); itPlayer != DungeonCooldownStore.end(); )
         {
             for (auto itDungeon = itPlayer->second.begin(); itDungeon != itPlayer->second.end(); )
             {
-                if (itDungeon->second <= expireTime)
+                if (GameTime::HasElapsed(itDungeon->second, cooldownDuration))
                     itDungeon = itPlayer->second.erase(itDungeon);
                 else
                     ++itDungeon;
@@ -205,9 +204,9 @@ namespace lfg
         DungeonCooldownStore.clear();
     }
 
-    uint32 LFGMgr::GetDungeonCooldownDuration() const
+    Seconds LFGMgr::GetDungeonCooldownDuration() const
     {
-        return sWorld->getIntConfig(CONFIG_LFG_DUNGEON_SELECTION_COOLDOWN) * MINUTE;
+        return Seconds(sWorld->getIntConfig(CONFIG_LFG_DUNGEON_SELECTION_COOLDOWN) * MINUTE);
     }
 
     LfgDungeonSet LFGMgr::FilterCooldownDungeons(LfgDungeonSet const& dungeons, LfgRolesMap const& players)
@@ -215,7 +214,7 @@ namespace lfg
         if (!sWorld->getIntConfig(CONFIG_LFG_DUNGEON_SELECTION_COOLDOWN))
             return dungeons;
 
-        time_t expireTime = GameTime::GetGameTime().count() - GetDungeonCooldownDuration();
+        Seconds cooldownDuration = GetDungeonCooldownDuration();
 
         LfgDungeonSet filtered;
         for (uint32 dungeonId : dungeons)
@@ -228,7 +227,7 @@ namespace lfg
                 if (itPlayer != DungeonCooldownStore.end())
                 {
                     auto itDungeon = itPlayer->second.find(dungeonId);
-                    if (itDungeon != itPlayer->second.end() && itDungeon->second > expireTime)
+                    if (itDungeon != itPlayer->second.end() && !GameTime::HasElapsed(itDungeon->second, cooldownDuration))
                     {
                         onCooldown = true;
                         break;
