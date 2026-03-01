@@ -82,6 +82,10 @@ Battlefield::~Battlefield()
 // Called when a player enters the zone
 void Battlefield::HandlePlayerEnterZone(Player* player, uint32 /*zone*/)
 {
+    // Allow scripts to reassign team before any team-based data structure operations.
+    // Scripts (e.g. mod-cfbg) may call SetFakeRaceAndMorphForBF here to change
+    // player->GetTeamId() before any bucket insertions happen.
+    sScriptMgr->OnBattlefieldPlayerEnterZone(this, player);
 
     // Xinef: do not invite players on taxi
     if (!player->IsInFlight())
