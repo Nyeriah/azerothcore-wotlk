@@ -1,6 +1,5 @@
 --
 DELETE FROM `acore_string` WHERE `entry` IN (5111, 5112, 5113, 5114, 5115, 5116, 5117);
-
 INSERT INTO `acore_string` (`entry`, `content_default`, `locale_koKR`, `locale_frFR`, `locale_deDE`, `locale_zhCN`, `locale_zhTW`, `locale_esES`, `locale_esMX`, `locale_ruRU`) VALUES
 (5111, 'Battlefield {} not found.', '전장 {}을(를) 찾을 수 없습니다.', 'Champ de bataille {} introuvable.', 'Schlachtfeld {} nicht gefunden.', '战场 {} 未找到。', '戰場 {} 未找到。', 'Campo de batalla {} no encontrado.', 'Campo de batalla {} no encontrado.', 'Поле боя {} не найдено.'),
 (5112, 'Battlefield {} battle started.', '전장 {} 전투가 시작되었습니다.', 'La bataille du champ de bataille {} a commencé.', 'Schlachtfeld {} Kampf gestartet.', '战场 {} 战斗已开始。', '戰場 {} 戰鬥已開始。', 'La batalla del campo de batalla {} ha comenzado.', 'La batalla del campo de batalla {} ha comenzado.', 'Сражение на поле боя {} началось.'),
