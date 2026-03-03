@@ -55,7 +55,9 @@ public:
         }
 
         bf->StartBattle();
-        handler->PSendSysMessage(LANG_BF_STARTED, battleId);
+        handler->SendWorldText(LANG_BF_STARTED, battleId);
+        if (handler->IsConsole())
+            handler->PSendSysMessage(LANG_BF_STARTED, battleId);
 
         return true;
     }
@@ -71,7 +73,9 @@ public:
         }
 
         bf->EndBattle(true);
-        handler->PSendSysMessage(LANG_BF_STOPPED, battleId);
+        handler->SendWorldText(LANG_BF_STOPPED, battleId);
+        if (handler->IsConsole())
+            handler->PSendSysMessage(LANG_BF_STOPPED, battleId);
 
         return true;
     }
@@ -89,12 +93,16 @@ public:
         if (bf->IsEnabled())
         {
             bf->ToggleBattlefield(false);
-            handler->PSendSysMessage(LANG_BF_DISABLED, battleId);
+            handler->SendWorldText(LANG_BF_DISABLED, battleId);
+            if (handler->IsConsole())
+                handler->PSendSysMessage(LANG_BF_DISABLED, battleId);
         }
         else
         {
             bf->ToggleBattlefield(true);
-            handler->PSendSysMessage(LANG_BF_ENABLED, battleId);
+            handler->SendWorldText(LANG_BF_ENABLED, battleId);
+            if (handler->IsConsole())
+                handler->PSendSysMessage(LANG_BF_ENABLED, battleId);
         }
 
         return true;
@@ -111,7 +119,9 @@ public:
         }
 
         bf->EndBattle(false);
-        handler->PSendSysMessage(LANG_BF_SWITCHED, battleId);
+        handler->SendWorldText(LANG_BF_SWITCHED, battleId);
+        if (handler->IsConsole())
+            handler->PSendSysMessage(LANG_BF_SWITCHED, battleId);
 
         return true;
     }
@@ -151,7 +161,9 @@ public:
 
         bf->SetTimer(time * IN_MILLISECONDS);
         bf->SendInitWorldStatesToAll();
-        handler->PSendSysMessage(LANG_BF_TIMER_SET, battleId, time);
+        handler->SendWorldText(LANG_BF_TIMER_SET, battleId, time);
+        if (handler->IsConsole())
+            handler->PSendSysMessage(LANG_BF_TIMER_SET, battleId, time);
 
         return true;
     }
