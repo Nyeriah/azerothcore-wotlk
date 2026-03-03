@@ -1183,7 +1183,10 @@ enum AcoreStrings
     LANG_CMD_QUEST_STATUS_LOG_FULL      = 5109,
     LANG_CMD_QUEST_STATUS_COND_DETAIL   = 5110,
 
-    // Room for more strings    5111-9999
+    LANG_RESETALL_HONOR                 = 5111,
+    LANG_RESETALL_ARENA                 = 5112,
+
+    // Room for more strings    5113-9999
 
     // Level requirement notifications
     LANG_SAY_REQ                        = 6604,
