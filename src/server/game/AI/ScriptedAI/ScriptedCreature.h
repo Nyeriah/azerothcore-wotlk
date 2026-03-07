@@ -490,7 +490,9 @@ public:
 
     bool CanRespawn() override;
 
-    void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason reason) override;
+    void OnSpellCast(SpellInfo const* spell) override;
+    void OnChannelFinished(SpellInfo const* spell) override;
+    void OnSpellFailed(SpellInfo const* spell) override;
     void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask) override;
     void JustSummoned(Creature* summon) override;
     void SummonedCreatureDespawn(Creature* summon) override;
@@ -534,6 +536,7 @@ protected:
     SummonList summons;
 
 private:
+    void _CheckHealthAfterCast();
     uint32 const _bossId;
     std::list<HealthCheckEventData> _healthCheckEvents;
     HealthCheckEventData _nextHealthCheck;
