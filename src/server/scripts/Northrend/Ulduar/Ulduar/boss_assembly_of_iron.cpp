@@ -140,6 +140,10 @@ bool IsEncounterComplete(InstanceScript* pInstance, Creature* me)
     if (!pInstance || !me)
         return false;
 
+    for (uint8 i = 0; i < 3; ++i)
+        if (!pInstance->GetCreature(DATA_STEELBREAKER + i))
+            return false;
+
     return CountAliveBosses(pInstance) == 0;
 }
 
