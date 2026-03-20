@@ -1199,6 +1199,7 @@ struct npc_ulduar_vx001 : public ScriptedAI
         _phase = 0;
         _fighting = false;
         _leftArm = false;
+        _spinningUpOrientation = 0;
         _spinningUpTimer = 0;
         me->SetRegeneratingHealth(false);
         _events.Reset();
