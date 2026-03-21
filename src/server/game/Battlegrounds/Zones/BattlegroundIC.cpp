@@ -745,6 +745,14 @@ void BattlegroundIC::HandleContestedNodes(ICNodePoint* nodePoint)
             (*itr)->SetUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
         }
     }
+    else if (nodePoint->nodeType == NODE_TYPE_REFINERY)
+    {
+        RemoveAuraOnTeam(SPELL_OIL_REFINERY, GetOtherTeamId(nodePoint->faction));
+    }
+    else if (nodePoint->nodeType == NODE_TYPE_QUARRY)
+    {
+        RemoveAuraOnTeam(SPELL_QUARRY, GetOtherTeamId(nodePoint->faction));
+    }
     else if (nodePoint->nodeType == NODE_TYPE_WORKSHOP)
     {
         DelObject(BG_IC_GO_SEAFORIUM_BOMBS_1);
