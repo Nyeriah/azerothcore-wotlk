@@ -1149,7 +1149,10 @@ uint32 Unit::DealDamage(Unit* attacker, Unit* victim, uint32 damage, CleanDamage
         {
             uint32 unDamage = health < damage ? health : damage;
             bool damagedByPlayer = unDamage && attacker && (attacker->IsPlayer() || attacker->m_movedByPlayer != nullptr);
-            victim->ToCreature()->LowerPlayerDamageReq(unDamage, damagedByPlayer);
+            uint8 attackerLevel = 0;
+            if (Player* attackerPlayer = attacker ? attacker->GetCharmerOrOwnerPlayerOrPlayerItself() : nullptr)
+                attackerLevel = attackerPlayer->GetLevel();
+            victim->ToCreature()->LowerPlayerDamageReq(unDamage, damagedByPlayer, attackerLevel);
         }
     }
 

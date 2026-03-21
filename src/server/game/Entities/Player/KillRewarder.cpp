@@ -16,6 +16,7 @@
  */
 
 #include "KillRewarder.h"
+#include "Creature.h"
 #include "Formulas.h"
 #include "Group.h"
 #include "Pet.h"
@@ -159,6 +160,27 @@ void KillRewarder::_RewardXP(Player* player, float rate)
                  uint32(xp * rate / 2) + 1;      // Reward only HALF of XP if some of group members are gray.
         else
             xp = 0;
+    }
+    else if (Creature* creature = _victim->ToCreature())
+    {
+        // If an ungrouped helper attacked this creature and the mob
+        // is gray for that helper, reduce XP — consistent with the
+        // group formula (half XP when a gray-level member is present).
+        // If an ungrouped higher-level player helped kill this creature,
+        // apply group-like XP scaling: level ratio + gray penalty.
+        uint8 highestLevel = creature->GetHighestPlayerAttackerLevel();
+        if (highestLevel > player->GetLevel())
+        {
+            // Level ratio: same as group formula (playerLevel / sumOfLevels)
+            uint32 sumLevel = uint32(player->GetLevel()) + uint32(highestLevel);
+            float levelRate = float(player->GetLevel()) / float(sumLevel);
+
+            uint8 grayLevel = Acore::XP::GetGrayLevel(highestLevel);
+            if (creature->GetLevel() <= grayLevel)
+                xp = uint32(xp * levelRate / 2) + 1;
+            else
+                xp = uint32(xp * levelRate);
+        }
     }
     if (xp)
     {
