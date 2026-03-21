@@ -166,8 +166,6 @@ enum Events
     EVENT_SARTHARION_CAST_FLAME_BREATH          = 11,
     EVENT_SARTHARION_CAST_TAIL_LASH             = 12,
     EVENT_SARTHARION_SUMMON_LAVA                = 13,
-    EVENT_SARTHARION_START_LAVA                 = 14,
-    EVENT_SARTHARION_FINISH_LAVA                = 15,
     EVENT_SARTHARION_LAVA_STRIKE                = 16,
     EVENT_SARTHARION_BERSERK                    = 17,
 
@@ -451,7 +449,9 @@ struct boss_sartharion : public BossAI
         {
             case NPC_FLAME_TSUNAMI:
             {
-                summon->SetSpeed(MOVE_FLIGHT, 1.5f);
+                summon->SetReactState(REACT_PASSIVE);
+                summon->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                summon->CastSpell(summon, SPELL_FLAME_TSUNAMI_DAMAGE_AURA, true);
                 break;
             }
             case NPC_FIRE_CYCLONE:
@@ -516,16 +516,6 @@ struct boss_sartharion : public BossAI
 
                     SummonLavaWaves();
                     extraEvents.Repeat(25s);
-                    return;
-                }
-                case EVENT_SARTHARION_START_LAVA:
-                {
-                    SendLavaWaves(true);
-                    return;
-                }
-                case EVENT_SARTHARION_FINISH_LAVA:
-                {
-                    SendLavaWaves(false);
                     return;
                 }
                 // Handling of Drakes Events
@@ -625,18 +615,19 @@ private:
     {
         summons.RemoveNotExisting();
         Talk(WHISPER_LAVA_CHURN);
-        extraEvents.ScheduleEvent(EVENT_SARTHARION_START_LAVA, 3600ms);
-        extraEvents.ScheduleEvent(EVENT_SARTHARION_FINISH_LAVA, 11s);
 
         // Send wave from left
         if (lastLavaSide == LAVA_RIGHT_SIDE)
         {
             for (uint8 i = 0; i < MAX_LEFT_LAVA_TSUNAMIS; ++i)
             {
-                Creature* tsunami = me->SummonCreature(NPC_FLAME_TSUNAMI, 3211.0f, FlameTsunamiLeftOffsets[i], 57.083332f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 13500);
+                if (Creature* tsunami = me->SummonCreature(NPC_FLAME_TSUNAMI, 3211.0f, FlameTsunamiLeftOffsets[i], 57.083332f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 13500))
+                {
+                    if ((i - 2) % 3 == 0) // If center of wave
+                        tsunami->CastSpell(tsunami, SPELL_FLAME_TSUNAMI_VISUAL, true);
 
-                if (((i - 2) % 3 == 0) && tsunami) // If center of wave
-                    tsunami->CastSpell(tsunami, SPELL_FLAME_TSUNAMI_VISUAL, true);
+                    tsunami->GetMotionMaster()->MovePoint(0, 3286.0f, FlameTsunamiLeftOffsets[i], 57.083332f);
+                }
             }
 
             lastLavaSide = LAVA_LEFT_SIDE;
@@ -646,37 +637,16 @@ private:
         {
             for (uint8 i = 0; i < MAX_RIGHT_LAVA_TSUNAMIS; ++i)
             {
-                Creature* tsunami = me->SummonCreature(NPC_FLAME_TSUNAMI, 3286.0f, FlameTsunamiRightOffsets[i], 57.083332f, 3.14f, TEMPSUMMON_TIMED_DESPAWN, 13500);
+                if (Creature* tsunami = me->SummonCreature(NPC_FLAME_TSUNAMI, 3286.0f, FlameTsunamiRightOffsets[i], 57.083332f, 3.14f, TEMPSUMMON_TIMED_DESPAWN, 13500))
+                {
+                    if ((i - 2) % 3 == 0) // If center of wave
+                        tsunami->CastSpell(tsunami, SPELL_FLAME_TSUNAMI_VISUAL, true);
 
-                if (((i - 2) % 3 == 0) && tsunami) // If center of wave
-                    tsunami->CastSpell(tsunami, SPELL_FLAME_TSUNAMI_VISUAL, true);
+                    tsunami->GetMotionMaster()->MovePoint(0, 3211.0f, FlameTsunamiRightOffsets[i], 57.083332f);
+                }
             }
 
             lastLavaSide = LAVA_RIGHT_SIDE;
-        }
-    }
-
-    void SendLavaWaves(bool start)
-    {
-        if (summons.empty())
-            return;
-
-        for (ObjectGuid const& guid : summons)
-        {
-            Creature* tsunami = ObjectAccessor::GetCreature(*me, guid);
-            if (!tsunami || tsunami->GetEntry() != NPC_FLAME_TSUNAMI)
-                continue;
-
-            if (start) // Movement possibly simplified from official, ideally reevaluate in the future.
-            {
-                tsunami->CastSpell(tsunami, SPELL_FLAME_TSUNAMI_DAMAGE_AURA, true);
-                tsunami->GetMotionMaster()->MovePoint(0, ((tsunami->GetPositionX() < 3250.0f) ? 3286.0f : 3211.0f), tsunami->GetPositionY(), tsunami->GetPositionZ());
-            }
-            else
-            {
-                tsunami->RemoveAura(SPELL_FLAME_TSUNAMI_DAMAGE_AURA);
-                tsunami->SetObjectScale(0.1f);
-            }
         }
     }
 
