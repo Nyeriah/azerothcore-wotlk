@@ -10408,6 +10408,11 @@ void Player::ContinueTaxiFlight()
         }
     }
 
+    // Advance to the next node so the flight resumes forward, not from a node
+    // the player already passed (prevents brief backwards movement on login)
+    if (startNode + 1 < nodeList.size() && nodeList[startNode + 1]->mapid == GetMapId())
+        ++startNode;
+
     // xinef: no proper node was found
     if (startNode == 0)
     {
