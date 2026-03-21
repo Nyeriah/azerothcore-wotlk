@@ -326,13 +326,6 @@ struct boss_vezax : public BossAI
     {
         _JustDied();
         Talk(SAY_DEATH);
-
-        if (GameObject* door = me->FindNearestGameObject(GO_VEZAX_DOOR, 500.0f))
-            if (door->GetGoState() != GO_STATE_ACTIVE)
-            {
-                door->SetLootState(GO_READY);
-                door->UseDoorOrButton(0, false);
-            }
     }
 
     void KilledUnit(Unit* who) override

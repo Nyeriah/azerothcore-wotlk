@@ -740,15 +740,6 @@ struct boss_mimiron : public BossAI
 
                     DoCastSelf(SPELL_SLEEP_VISUAL_1);
 
-                    if (instance)
-                        for( uint16 i = 0; i < 3; ++i )
-                            if (GameObject* door = instance->GetGameObject(DATA_GO_MIMIRON_DOOR_1 + i))
-                                    if (door->GetGoState() != GO_STATE_ACTIVE )
-                                    {
-                                        door->SetLootState(GO_READY);
-                                        door->UseDoorOrButton(0, false);
-                                    }
-
                     instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, NPC_LEVIATHAN_MKII, 1, me);
 
                     if (hardmode)
@@ -828,14 +819,6 @@ struct boss_mimiron : public BossAI
 
     void ResetGameObjects()
     {
-        for (uint16 i = 0; i < 3; ++i)
-            if (GameObject* door = instance->GetGameObject(DATA_GO_MIMIRON_DOOR_1 + i))
-                if (door->GetGoState() != GO_STATE_ACTIVE)
-                    {
-                        door->SetLootState(GO_READY);
-                        door->UseDoorOrButton(0, false);
-                    }
-
         if (GameObject* elevator = me->FindNearestGameObject(GO_MIMIRON_ELEVATOR, 200.0f))
         {
             if (elevator->GetGoState() != GO_STATE_ACTIVE )
@@ -857,14 +840,6 @@ struct boss_mimiron : public BossAI
 
     void CloseDoorAndButton()
     {
-        for (uint16 i = 0; i < 3; ++i)
-            if (GameObject* door = instance->GetGameObject(DATA_GO_MIMIRON_DOOR_1 + i))
-                if (door->GetGoState() != GO_STATE_READY)
-                    {
-                        door->SetLootState(GO_READY);
-                        door->UseDoorOrButton(0, false);
-                    }
-
         if (GameObject* button = me->FindNearestGameObject(GO_BUTTON, 200.0f))
             if (button->GetGoState() != GO_STATE_ACTIVE)
             {
