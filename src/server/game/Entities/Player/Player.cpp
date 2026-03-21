@@ -10388,11 +10388,13 @@ void Player::ContinueTaxiFlight()
     TaxiPathNodeList const& nodeList = sTaxiPathNodesByPath[path];
 
     float bestDist = SIZE_OF_GRIDS * SIZE_OF_GRIDS; // xinef: large value
+    float const px = GetPositionX();
+    float const py = GetPositionY();
+    float const pz = GetPositionZ();
 
-    // Find the closest path segment (between node i and i+1) and resume from
-    // the end of that segment (i+1). Using segment distance instead of node
-    // distance prevents backwards movement when the player's saved position
-    // is past a node's midpoint.
+    // Find the closest path segment midpoint and resume from the end of that
+    // segment (i+1). Using segment midpoints instead of node positions avoids
+    // backwards movement when the player's saved position is past a node.
     for (uint32 i = 0; i < nodeList.size() - 1; ++i)
     {
         TaxiPathNodeEntry const* node = nodeList[i];
@@ -10402,20 +10404,23 @@ void Player::ContinueTaxiFlight()
         if (nextNode->mapid != GetMapId() || node->mapid != GetMapId())
             continue;
 
-        // Compute distance from player to the segment midpoint as a proxy
-        // for which segment the player is on
         float midX = (node->x + nextNode->x) * 0.5f;
         float midY = (node->y + nextNode->y) * 0.5f;
         float midZ = (node->z + nextNode->z) * 0.5f;
-        float currDist = (midX - GetPositionX()) * (midX - GetPositionX()) +
-                         (midY - GetPositionY()) * (midY - GetPositionY()) +
-                         (midZ - GetPositionZ()) * (midZ - GetPositionZ());
+        float currDist = (midX - px) * (midX - px) +
+                         (midY - py) * (midY - py) +
+                         (midZ - pz) * (midZ - pz);
         if (currDist < bestDist)
         {
             startNode = i + 1; // resume from the end of the closest segment
             bestDist = currDist;
         }
     }
+
+    // If closest segment is the last one, the player is at the destination;
+    // clamp to the second-to-last node so the flight can finalize properly
+    if (startNode >= nodeList.size() - 1)
+        startNode = nodeList.size() - 2;
 
     // xinef: no proper node was found
     if (startNode == 0)
