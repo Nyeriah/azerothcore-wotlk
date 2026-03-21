@@ -74,12 +74,15 @@ public:
             scheduler.Schedule(13s, 18s, [this](TaskContext context)
             {
                 Talk(SAY_CLAW_EMOTE);
-                me->setAttackTimer(BASE_ATTACK, 2000);
-                me->AttackerStateUpdate(me->GetVictim());
-                if (me->GetVictim())
-                    me->AttackerStateUpdate(me->GetVictim());
-                if (me->GetVictim())
-                    me->AttackerStateUpdate(me->GetVictim());
+                if (Unit* victim = me->GetVictim())
+                {
+                    me->setAttackTimer(BASE_ATTACK, 2000);
+                    me->AttackerStateUpdate(victim);
+                    if (me->GetVictim())
+                        me->AttackerStateUpdate(me->GetVictim());
+                    if (me->GetVictim())
+                        me->AttackerStateUpdate(me->GetVictim());
+                }
 
                 context.Schedule(1500ms, [this](TaskContext context)
                 {
