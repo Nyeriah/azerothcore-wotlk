@@ -745,13 +745,12 @@ void BattlegroundIC::HandleContestedNodes(ICNodePoint* nodePoint)
             (*itr)->SetUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
         }
     }
-    else if (nodePoint->nodeType == NODE_TYPE_REFINERY)
+    else if (nodePoint->nodeType == NODE_TYPE_REFINERY || nodePoint->nodeType == NODE_TYPE_QUARRY)
     {
-        RemoveAuraOnTeam(SPELL_OIL_REFINERY, GetOtherTeamId(nodePoint->faction));
-    }
-    else if (nodePoint->nodeType == NODE_TYPE_QUARRY)
-    {
-        RemoveAuraOnTeam(SPELL_QUARRY, GetOtherTeamId(nodePoint->faction));
+        // nodePoint->faction is the assaulting team (set before this call);
+        // remove the siege damage buff from the team that previously controlled the node.
+        uint32 auraSpellId = (nodePoint->nodeType == NODE_TYPE_REFINERY) ? SPELL_OIL_REFINERY : SPELL_QUARRY;
+        RemoveAuraOnTeam(auraSpellId, GetOtherTeamId(nodePoint->faction));
     }
     else if (nodePoint->nodeType == NODE_TYPE_WORKSHOP)
     {
