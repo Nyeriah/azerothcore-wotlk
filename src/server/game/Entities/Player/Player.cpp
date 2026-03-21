@@ -10388,9 +10388,11 @@ void Player::ContinueTaxiFlight()
     TaxiPathNodeList const& nodeList = sTaxiPathNodesByPath[path];
 
     float bestDist = SIZE_OF_GRIDS * SIZE_OF_GRIDS; // xinef: large value
-    float currDist = 0.0f;
 
-    // xinef: changed to -1, we dont want to catch last node
+    // Find the closest path segment (between node i and i+1) and resume from
+    // the end of that segment (i+1). Using segment distance instead of node
+    // distance prevents backwards movement when the player's saved position
+    // is past a node's midpoint.
     for (uint32 i = 0; i < nodeList.size() - 1; ++i)
     {
         TaxiPathNodeEntry const* node = nodeList[i];
@@ -10400,18 +10402,20 @@ void Player::ContinueTaxiFlight()
         if (nextNode->mapid != GetMapId() || node->mapid != GetMapId())
             continue;
 
-        currDist = (node->x - GetPositionX()) * (node->x - GetPositionX()) + (node->y - GetPositionY()) * (node->y - GetPositionY()) + (node->z - GetPositionZ()) * (node->z - GetPositionZ());
+        // Compute distance from player to the segment midpoint as a proxy
+        // for which segment the player is on
+        float midX = (node->x + nextNode->x) * 0.5f;
+        float midY = (node->y + nextNode->y) * 0.5f;
+        float midZ = (node->z + nextNode->z) * 0.5f;
+        float currDist = (midX - GetPositionX()) * (midX - GetPositionX()) +
+                         (midY - GetPositionY()) * (midY - GetPositionY()) +
+                         (midZ - GetPositionZ()) * (midZ - GetPositionZ());
         if (currDist < bestDist)
         {
-            startNode = i;
+            startNode = i + 1; // resume from the end of the closest segment
             bestDist = currDist;
         }
     }
-
-    // Advance to the next node so the flight resumes forward, not from a node
-    // the player already passed (prevents brief backwards movement on login)
-    if (startNode + 1 < nodeList.size() && nodeList[startNode + 1]->mapid == GetMapId())
-        ++startNode;
 
     // xinef: no proper node was found
     if (startNode == 0)
