@@ -511,9 +511,11 @@ struct boss_yoggsaron_sara : public ScriptedAI
 
     void UpdateKeeperSpawns()
     {
+        uint32 watchersMask = m_pInstance->GetPersistentData(
+            PERSISTENT_DATA_WATCHERS_MASK);
         for (uint8 i = KEEPER_FREYA; i <= KEEPER_THORIM; i++)
         {
-            if (m_pInstance->GetData(TYPE_WATCHERS) & (1 << i))
+            if (watchersMask & (1 << i))
             {
                 if (!summons.HasEntry(TABLE_KEEPER_ENTRY[i]))
                     me->SummonCreature(TABLE_KEEPER_ENTRY[i], KeepersPos[i]);
@@ -614,8 +616,10 @@ struct boss_yoggsaron_sara : public ScriptedAI
         if (param == DATA_GET_KEEPERS_COUNT)
         {
             uint8 _count = 0;
+            uint32 watchersMask = m_pInstance->GetPersistentData(
+                PERSISTENT_DATA_WATCHERS_MASK);
             for (uint8 i = 0; i < 4; ++i)
-                if (m_pInstance->GetData(TYPE_WATCHERS) & (1 << i))
+                if (watchersMask & (1 << i))
                     ++_count;
             return _count;
         }
@@ -1039,8 +1043,10 @@ struct boss_yoggsaron : public ScriptedAI
         me->SetLootMode(31); // 1 + 2 + 4 + 8 + 16, remove with watchers addition
         if (m_pInstance)
         {
+            uint32 watchersMask = m_pInstance->GetPersistentData(
+                PERSISTENT_DATA_WATCHERS_MASK);
             for (uint8 i = 0; i < 4; ++i)
-                if (m_pInstance->GetData(TYPE_WATCHERS) & (1 << i))
+                if (watchersMask & (1 << i))
                 {
                     me->RemoveLootMode(1 << _count);
                     --_count;

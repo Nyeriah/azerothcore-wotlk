@@ -231,11 +231,6 @@ struct boss_hodir : public BossAI
         me->RemoveAllAuras();
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BITING_COLD_PLAYER_AURA);
 
-        if (GameObject* go = me->FindNearestGameObject(GO_HODIR_FRONTDOOR, 900.0f))
-        {
-            go->SetGoState(GO_STATE_ACTIVE);
-        }
-
         // Reset helpers
         if (!summons.size())
             SpawnHelpers();
@@ -253,14 +248,7 @@ struct boss_hodir : public BossAI
         Talk(TEXT_AGGRO);
 
         if (instance->GetBossState(BOSS_HODIR) != DONE)
-        {
             instance->SetBossState(BOSS_HODIR, IN_PROGRESS);
-        }
-
-        if (GameObject* go = me->FindNearestGameObject(GO_HODIR_FRONTDOOR, 300.0f))
-        {
-            go->SetGoState(GO_STATE_READY);
-        }
     }
 
     GameObject* GetHardmodeChest()
@@ -341,28 +329,6 @@ struct boss_hodir : public BossAI
 
                 events.Reset();
                 summons.DespawnAll();
-
-                if (GameObject* d = me->FindNearestGameObject(GO_HODIR_FROZEN_DOOR, 250.0f))
-                {
-                    if (d->GetGoState() != GO_STATE_ACTIVE )
-                    {
-                        d->SetLootState(GO_READY);
-                        d->UseDoorOrButton(0, false);
-                    }
-                }
-                if (GameObject* d = me->FindNearestGameObject(GO_HODIR_DOOR, 250.0f))
-                {
-                    if (d->GetGoState() != GO_STATE_ACTIVE )
-                    {
-                        d->SetLootState(GO_READY);
-                        d->UseDoorOrButton(0, false);
-                    }
-                }
-
-                if (GameObject* go = me->FindNearestGameObject(GO_HODIR_FRONTDOOR, 300.0f))
-                {
-                    go->SetGoState(GO_STATE_ACTIVE);
-                }
 
                 Talk(TEXT_DEATH);
                 scheduler.Schedule(14s, [this](TaskContext /*context*/)

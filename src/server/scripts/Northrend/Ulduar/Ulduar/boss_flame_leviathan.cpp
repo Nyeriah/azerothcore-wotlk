@@ -214,7 +214,7 @@ struct boss_flame_leviathan : public BossAI
     {
         _JustReachedHome();
         // For achievement
-        instance->SetData(DATA_UNBROKEN_ACHIEVEMENT, 0);
+        instance->StorePersistentData(PERSISTENT_DATA_UNBROKEN, 0);
         me->setActive(false);
     }
 
@@ -1238,7 +1238,7 @@ class spell_auto_repair : public SpellScript
 
         // Achievement
         if (InstanceScript* instance = vehicle->GetBase()->GetInstanceScript())
-            instance->SetData(DATA_UNBROKEN_ACHIEVEMENT, 0);
+            instance->StorePersistentData(PERSISTENT_DATA_UNBROKEN, 0);
     }
 
     void Register() override
@@ -1716,10 +1716,9 @@ public:
 
     bool OnCheck(Player* player, Unit*, uint32 /*criteria_id*/) override
     {
-        if (player->GetInstanceScript())
-            if (player->GetInstanceScript()->GetData(DATA_UNBROKEN_ACHIEVEMENT))
-                return true;
-        return false;
+        InstanceScript* instance = player->GetInstanceScript();
+        return instance
+            && instance->GetPersistentData(PERSISTENT_DATA_UNBROKEN);
     }
 };
 
