@@ -1271,7 +1271,11 @@ public:
     }
     [[nodiscard]] SpawnData const* GetSpawnData(SpawnObjectType type, ObjectGuid::LowType spawnId) const;
 
-    [[nodiscard]] SpawnGroupTemplateData const* GetDefaultSpawnGroup() const { return &_spawnGroupDataStore.at(0); }
+    [[nodiscard]] SpawnGroupTemplateData const* GetSpawnGroupData(uint32 groupId) const
+    {
+        auto itr = _spawnGroupDataStore.find(groupId);
+        return itr != _spawnGroupDataStore.end() ? &itr->second : nullptr;
+    }
 
     [[nodiscard]] CreatureLocale const* GetCreatureLocale(uint32 entry) const
     {

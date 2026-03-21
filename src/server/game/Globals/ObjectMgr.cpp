@@ -2397,7 +2397,7 @@ void ObjectMgr::LoadCreatures()
         data.unit_flags         = fields[21].Get<uint32>();
         data.dynamicflags       = fields[22].Get<uint32>();
         data.ScriptId           = GetScriptId(fields[23].Get<std::string>());
-        data.spawnGroupData     = &_spawnGroupDataStore[0];
+        data.spawnGroupId       = 0;
 
         if (!data.ScriptId)
             data.ScriptId = cInfo->ScriptID;
@@ -2576,7 +2576,7 @@ CreatureData const* ObjectMgr::LoadCreatureDataFromDB(ObjectGuid::LowType spawnI
     creatureData.unit_flags       = fields[19].Get<uint32>();
     creatureData.dynamicflags     = fields[20].Get<uint32>();
     creatureData.ScriptId         = GetScriptId(fields[21].Get<std::string>());
-    creatureData.spawnGroupData   = &_spawnGroupDataStore[0];
+    creatureData.spawnGroupId     = 0;
 
     if (!creatureData.ScriptId)
         creatureData.ScriptId = cInfo->ScriptID;
@@ -2759,7 +2759,7 @@ ObjectGuid::LowType ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, fl
     data.phaseMask      = PHASEMASK_NORMAL;
     data.artKit         = goinfo->type == GAMEOBJECT_TYPE_CAPTURE_POINT ? 21 : 0;
     data.dbData = false;
-    data.spawnGroupData = &_spawnGroupDataStore[0];
+    data.spawnGroupId   = 0;
 
     AddGameobjectToGrid(spawnId, &data);
 
@@ -2915,7 +2915,7 @@ void ObjectMgr::LoadGameobjects()
         data.rotation.w     = fields[10].Get<float>();
         data.spawntimesecs  = fields[11].Get<int32>();
         data.ScriptId       = GetScriptId(fields[18].Get<std::string>());
-        data.spawnGroupData = &_spawnGroupDataStore[0];
+        data.spawnGroupId   = 0;
         if (!data.ScriptId)
             data.ScriptId = gInfo->ScriptId;
 

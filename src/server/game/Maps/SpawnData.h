@@ -54,7 +54,7 @@ struct SpawnGroupTemplateData
 {
     uint32 groupId;
     std::string name;
-    uint32 mapId;
+    uint16 mapid;
     SpawnGroupFlags flags;
 };
 
@@ -70,7 +70,7 @@ struct SpawnData
     uint8 spawnMask{0};
     uint32 ScriptId{0};
     bool dbData{true};
-    SpawnGroupTemplateData const* spawnGroupData{nullptr};
+    uint32 spawnGroupId{0};
 
 protected:
     SpawnData(SpawnObjectType t) : type(t) {}
