@@ -3,10 +3,8 @@
 -- Each ElseGroup should check a different Kil'sorrow creature so banners work on all applicable mobs
 -- No double-banner check needed: SpellEffects.cpp already removes corpse after banner placement
 
--- Remove old conditions for spell 32307
+-- Remove old conditions for spell 32307 and insert corrected ones: CONDITION_NEAR_CREATURE (29) per mob
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 17 AND `SourceEntry` = 32307;
-
--- Insert corrected conditions: CONDITION_NEAR_CREATURE (29) per mob
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (17, 0, 32307, 0, 0, 29, 0, 17148, 5, 1, 0, 12, 0, '', 'Spell Place Kil''sorrow Banner requires nearby Kil''sorrow Deathsworn'),
 (17, 0, 32307, 0, 1, 29, 0, 17147, 5, 1, 0, 12, 0, '', 'Spell Place Kil''sorrow Banner requires nearby Kil''sorrow Cultist'),
