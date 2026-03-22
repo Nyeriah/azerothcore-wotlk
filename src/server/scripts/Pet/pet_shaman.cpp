@@ -20,7 +20,6 @@
  * Scriptnames of files in this file should be prefixed with "npc_pet_sha_".
  */
 
-#include "CreatureScript.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 

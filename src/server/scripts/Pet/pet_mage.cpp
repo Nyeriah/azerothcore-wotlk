@@ -21,7 +21,6 @@
  */
 
 #include "CombatAI.h"
-#include "CreatureScript.h"
 #include "Pet.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
