@@ -303,7 +303,12 @@ struct npc_batrider : public CreatureAI
 
             me->SetReactState(REACT_DEFENSIVE);
 
-            // don't interrupt casting        }
+            // don't interrupt casting
+            _scheduler.SetValidator([this]
+            {
+                return !me->HasUnitState(UNIT_STATE_CASTING);
+            });
+        }
     }
 
     void Reset() override
