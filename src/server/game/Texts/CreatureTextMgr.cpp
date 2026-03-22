@@ -209,7 +209,7 @@ void CreatureTextMgr::LoadCreatureTextOptions()
 
     if (!result)
     {
-        LOG_WARN("server.loading", ">> Loaded 0 creature text options. DB table `creature_text_options` is empty.");
+        LOG_WARN("server.loading", ">> Loaded 0 creature text options (query returned no rows or failed).");
         LOG_INFO("server.loading", " ");
         return;
     }
@@ -278,7 +278,8 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, WorldObject 
     CreatureTextGroup const& textGroupContainer = itr->second;  //has all texts in the group
 
     // Check creature_text_options for this group
-    if (CreatureTextOptions const* options = GetTextOptions(source->GetEntry(), textGroup))
+    CreatureTextOptions const* options = GetTextOptions(source->GetEntry(), textGroup);
+    if (options)
     {
         if (options->playerOnly && (!target || !target->IsPlayer()))
             return 0;
@@ -339,9 +340,8 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, WorldObject 
     source->SetTextRepeatId(textGroup, iter->id);
 
     // Set cooldown if creature_text_options specifies one
-    if (CreatureTextOptions const* options = GetTextOptions(source->GetEntry(), textGroup))
-        if (options->cooldown > 0)
-            source->SetTextCooldown(textGroup, options->cooldown);
+    if (options && options->cooldown > 0)
+        source->SetTextCooldown(textGroup, options->cooldown);
 
     return iter->duration;
 }

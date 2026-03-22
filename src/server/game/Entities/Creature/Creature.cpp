@@ -3694,7 +3694,7 @@ bool Creature::IsTextOnCooldown(uint8 textGroup) const
 void Creature::SetTextCooldown(uint8 textGroup, uint32 cooldownMs)
 {
     m_textCooldowns[textGroup] =
-        GameTime::GetGameTime().count() + (cooldownMs / 1000);
+        GameTime::GetGameTime().count() + ((cooldownMs + 999) / 1000);
 }
 
 void Creature::SetRespawnTime(uint32 respawn)
