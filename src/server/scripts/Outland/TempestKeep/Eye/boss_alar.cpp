@@ -97,7 +97,8 @@ struct boss_alar : public BossAI
 
     boss_alar(Creature* creature) : BossAI(creature, DATA_ALAR)
     {
-        me->SetCombatMovement(false);    }
+        me->SetCombatMovement(false);
+    }
 
     void Reset() override
     {

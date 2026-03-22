@@ -60,7 +60,8 @@ struct boss_exarch_maladaar : public BossAI
 {
     boss_exarch_maladaar(Creature* creature) : BossAI(creature, DATA_EXARCH_MALADAAR)
     {
-        _talked = false;    }
+        _talked = false;
+    }
 
     void Reset() override
     {

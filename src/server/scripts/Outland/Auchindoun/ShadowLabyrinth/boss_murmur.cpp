@@ -58,7 +58,8 @@ struct boss_murmur : public BossAI
 {
     boss_murmur(Creature* creature) : BossAI(creature, DATA_MURMUR)
     {
-        me->SetCombatMovement(false);    }
+        me->SetCombatMovement(false);
+    }
 
     void Reset() override
     {

@@ -49,7 +49,8 @@ struct boss_anetheron : public BossAI
 public:
     boss_anetheron(Creature* creature) : BossAI(creature, DATA_ANETHERON)
     {
-        _recentlySpoken = false;    }
+        _recentlySpoken = false;
+    }
 
     void JustEngagedWith(Unit * who) override
     {

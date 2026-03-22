@@ -74,7 +74,8 @@ struct boss_moroes : public BossAI
 {
     boss_moroes(Creature* creature) : BossAI(creature, DATA_MOROES)
     {
-        _activeGuests = 0;    }
+        _activeGuests = 0;
+    }
 
     void InitializeAI() override
     {

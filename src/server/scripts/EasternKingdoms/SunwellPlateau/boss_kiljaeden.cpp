@@ -125,7 +125,8 @@ struct npc_kiljaeden_controller : public NullCreatureAI
 {
     npc_kiljaeden_controller(Creature* creature) : NullCreatureAI(creature), summons(me)
     {
-        instance = creature->GetInstanceScript();    }
+        instance = creature->GetInstanceScript();
+    }
 
     void ResetOrbs()
     {

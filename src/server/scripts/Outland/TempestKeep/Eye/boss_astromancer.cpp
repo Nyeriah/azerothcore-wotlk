@@ -66,7 +66,8 @@ struct boss_high_astromancer_solarian : public BossAI
 {
     boss_high_astromancer_solarian(Creature* creature) : BossAI(creature, DATA_ASTROMANCER)
     {
-        callForHelpRange = 105.0f;    }
+        callForHelpRange = 105.0f;
+    }
 
     void Reset() override
     {

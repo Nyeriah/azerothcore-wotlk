@@ -49,7 +49,8 @@ struct boss_rage_winterchill : public BossAI
 public:
     boss_rage_winterchill(Creature* creature) : BossAI(creature, DATA_WINTERCHILL)
     {
-        _recentlySpoken = false;    }
+        _recentlySpoken = false;
+    }
 
     void JustEngagedWith(Unit* who) override
     {

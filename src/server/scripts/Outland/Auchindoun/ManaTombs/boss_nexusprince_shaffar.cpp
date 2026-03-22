@@ -53,7 +53,8 @@ struct boss_nexusprince_shaffar : public BossAI
 {
     boss_nexusprince_shaffar(Creature* creature) : BossAI(creature, DATA_NEXUSPRINCE_SHAFFAR), summons(me)
     {
-        HasTaunted = false;    }
+        HasTaunted = false;
+    }
 
     SummonList summons;
     bool HasTaunted;

@@ -47,7 +47,8 @@ struct boss_watchkeeper_gargolmar : public BossAI
 {
     boss_watchkeeper_gargolmar(Creature* creature) : BossAI(creature, DATA_WATCHKEEPER_GARGOLMAR)
     {
-        _taunted = false;    }
+        _taunted = false;
+    }
 
     void Reset() override
     {

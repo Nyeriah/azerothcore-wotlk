@@ -67,7 +67,8 @@ struct boss_anzu : public BossAI
     {
         talkTimer = 1;
         me->ReplaceAllUnitFlags(UNIT_FLAG_NON_ATTACKABLE);
-        me->AddAura(SPELL_SHADOWFORM, me);    }
+        me->AddAura(SPELL_SHADOWFORM, me);
+    }
 
     const Position AnzuSpiritPos[3] =
     {

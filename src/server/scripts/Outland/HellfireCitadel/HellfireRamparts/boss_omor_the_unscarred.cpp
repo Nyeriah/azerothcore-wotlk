@@ -41,7 +41,8 @@ struct boss_omor_the_unscarred : public BossAI
 {
     boss_omor_the_unscarred(Creature* creature) : BossAI(creature, DATA_OMOR_THE_UNSCARRED)
     {
-        me->SetCombatMovement(false);    }
+        me->SetCombatMovement(false);
+    }
 
     void Reset() override
     {
