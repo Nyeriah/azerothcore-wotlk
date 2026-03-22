@@ -209,7 +209,7 @@ void CreatureTextMgr::LoadCreatureTextOptions()
 
     if (!result)
     {
-        LOG_WARN("server.loading", ">> Loaded 0 creature text options (query returned no rows or failed).");
+        LOG_WARN("server.loading", ">> Loaded 0 creature text options. DB table `creature_text_options` is empty.");
         LOG_INFO("server.loading", " ");
         return;
     }
