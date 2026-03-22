@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS `creature_text_option_sets` (
     PRIMARY KEY (`SetID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+DELETE FROM `creature_text_option_sets`;
 INSERT INTO `creature_text_option_sets` (`SetID`, `Cooldown`, `TriggerChance`, `PlayerOnly`, `comment`) VALUES
 (1, 6000, 100, 0, 'Standard kill yell: 6s cooldown'),
 (2, 6000, 100, 1, 'Player-only kill yell: 6s cooldown'),
@@ -25,6 +26,7 @@ CREATE TABLE IF NOT EXISTS `creature_text_options` (
     PRIMARY KEY (`CreatureID`, `GroupID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+DELETE FROM `creature_text_options`;
 INSERT INTO `creature_text_options` (`CreatureID`, `GroupID`, `OptionSetID`) VALUES
 -- Black Temple
 (22887, 2, 3),  -- High Warlord Najentus SAY_SLAY
