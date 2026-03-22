@@ -530,6 +530,11 @@ public:
         void Reset() override
         {
             _scheduler.CancelAll();
+            _scheduler.SetValidator([this]
+            {
+                return !me->HasUnitState(UNIT_STATE_CASTING);
+            });
+
             reviveGUID.Clear();
         }
 

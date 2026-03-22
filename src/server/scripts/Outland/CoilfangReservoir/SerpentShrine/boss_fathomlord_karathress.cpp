@@ -321,6 +321,11 @@ struct boss_fathomguard_tidalvess : public ScriptedAI
     {
         _instance = creature->GetInstanceScript();
         SetBoundary(_instance->GetBossBoundary(DATA_FATHOM_LORD_KARATHRESS));
+
+        _scheduler.SetValidator([this]
+        {
+            return !me->HasUnitState(UNIT_STATE_CASTING);
+        });
     }
 
     void Reset() override
@@ -483,6 +488,11 @@ struct boss_fathomguard_caribdis : public ScriptedAI
     {
         _instance = creature->GetInstanceScript();
         SetBoundary(_instance->GetBossBoundary(DATA_FATHOM_LORD_KARATHRESS));
+
+        _scheduler.SetValidator([this]
+        {
+            return !me->HasUnitState(UNIT_STATE_CASTING);
+        });
     }
 
     void Reset() override

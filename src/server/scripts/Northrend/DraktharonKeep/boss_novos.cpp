@@ -140,6 +140,10 @@ struct boss_novos : public BossAI
             me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
             me->InterruptNonMeleeSpells(false);
 
+            scheduler.SetValidator([this] {
+                return !me->HasUnitState(UNIT_STATE_CASTING);
+            });
+
             ScheduleTimedEvent(5s, 10s, [&] {
                 DoCastRandomTarget(SPELL_BLIZZARD);
             }, 12s, 25s);

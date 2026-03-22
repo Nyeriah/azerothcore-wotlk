@@ -65,6 +65,11 @@ struct boss_kormok : public ScriptedAI
         _mages = false;
 
         _scheduler.CancelAll();
+        _scheduler.SetValidator([this]
+        {
+            return !me->HasUnitState(UNIT_STATE_CASTING);
+        });
+
         _summons.DespawnAll();
     }
 

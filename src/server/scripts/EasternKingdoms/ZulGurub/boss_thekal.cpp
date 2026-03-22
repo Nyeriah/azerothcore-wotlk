@@ -327,6 +327,11 @@ struct npc_zealot_lorkhan : public ScriptedAI
     {
         _scheduler.CancelAll();
 
+        _scheduler.SetValidator([this]
+        {
+            return !me->HasUnitState(UNIT_STATE_CASTING);
+        });
+
         // emote idle loop
         _scheduler.Schedule(5s, 25s, [this](TaskContext context)
         {
@@ -422,6 +427,11 @@ struct npc_zealot_zath : public ScriptedAI
     void Reset() override
     {
         _scheduler.CancelAll();
+
+        _scheduler.SetValidator([this]
+        {
+            return !me->HasUnitState(UNIT_STATE_CASTING);
+        });
 
         // emote idle loop
         _scheduler.Schedule(5s, 25s, [this](TaskContext context)

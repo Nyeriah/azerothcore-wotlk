@@ -156,6 +156,11 @@ struct boss_dorothee : public ScriptedAI
         //this is kinda a big no-no. but it will prevent her from moving to chase targets. she should just cast her spells. in this case, since there is not really something to LOS her with or get out of range this would work. but a more elegant solution would be better
 
         instance = creature->GetInstanceScript();
+
+        _scheduler.SetValidator([this]
+        {
+            return !me->HasUnitState(UNIT_STATE_CASTING);
+        });
     }
 
     InstanceScript* instance;
@@ -295,6 +300,11 @@ struct boss_roar : public ScriptedAI
     boss_roar(Creature* creature) : ScriptedAI(creature)
     {
         instance = creature->GetInstanceScript();
+
+        _scheduler.SetValidator([this]
+        {
+            return !me->HasUnitState(UNIT_STATE_CASTING);
+        });
     }
 
     InstanceScript* instance;
@@ -378,6 +388,11 @@ struct boss_strawman : public ScriptedAI
     boss_strawman(Creature* creature) : ScriptedAI(creature)
     {
         instance = creature->GetInstanceScript();
+
+        _scheduler.SetValidator([this]
+        {
+            return !me->HasUnitState(UNIT_STATE_CASTING);
+        });
     }
 
     InstanceScript* instance;
@@ -468,6 +483,11 @@ struct boss_tinhead : public ScriptedAI
     boss_tinhead(Creature* creature) : ScriptedAI(creature)
     {
         instance = creature->GetInstanceScript();
+
+        _scheduler.SetValidator([this]
+        {
+            return !me->HasUnitState(UNIT_STATE_CASTING);
+        });
     }
 
     InstanceScript* instance;
@@ -716,6 +736,11 @@ struct boss_bigbadwolf : public ScriptedAI
     boss_bigbadwolf(Creature* creature) : ScriptedAI(creature)
     {
         instance = creature->GetInstanceScript();
+
+        _scheduler.SetValidator([this]
+        {
+            return !me->HasUnitState(UNIT_STATE_CASTING);
+        });
     }
 
     InstanceScript* instance;

@@ -318,7 +318,12 @@ struct npc_apothecary_frye : public npc_apothecary_genericAI
 struct npc_apothecary_baxter : public npc_apothecary_genericAI
 {
     npc_apothecary_baxter(Creature* creature) : npc_apothecary_genericAI(creature, BaxterMovePos)
-    {    }
+    {
+        _scheduler.SetValidator([this]
+        {
+            return !me->HasUnitState(UNIT_STATE_CASTING);
+        });
+    }
 
     void Reset() override
     {
