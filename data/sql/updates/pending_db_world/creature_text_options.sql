@@ -12,7 +12,10 @@ INSERT INTO `creature_text_option_sets` (`SetID`, `Cooldown`, `TriggerChance`, `
 (1, 6000, 100, 0, 'Standard kill yell: 6s cooldown'),
 (2, 6000, 100, 1, 'Player-only kill yell: 6s cooldown'),
 (3, 5000, 100, 1, 'Short cooldown player-only kill yell: 5s cooldown'),
-(4, 0,    30,  0, 'Chance-based: 30% trigger, no cooldown');
+(4, 0,    30,  0, 'Chance-based: 30% trigger, no cooldown'),
+(5, 5000, 100, 0, 'Standard kill yell: 5s cooldown'),
+(6, 0,    25,  1, 'Chance-based: 25% trigger, player-only'),
+(7, 0,    50,  1, 'Chance-based: 50% trigger, player-only');
 
 -- Assign option sets to creature text groups
 CREATE TABLE IF NOT EXISTS `creature_text_options` (
@@ -62,4 +65,48 @@ INSERT INTO `creature_text_options` (`CreatureID`, `GroupID`, `OptionSetID`) VAL
 (36597, 10, 3), -- The Lich King SAY_LK_KILL
 
 -- Naxxramas
-(16061, 1, 4);  -- Instructor Razuvious SAY_SLAY
+(16061, 1, 4),  -- Instructor Razuvious SAY_SLAY
+
+-- Karazhan
+(15687, 2, 3),  -- Moroes SAY_KILL
+
+-- Battle for Mount Hyjal
+(17888, 0, 2),  -- Kazrogal SAY_ONSLAY
+(17842, 1, 2),  -- Azgalor SAY_ONSLAY
+(17767, 1, 2),  -- Rage Winterchill SAY_ONSLAY
+(17808, 1, 2),  -- Anetheron SAY_ONSLAY
+
+-- Serpentshrine Cavern
+(21212, 6, 1),  -- Lady Vashj SAY_SLAY
+(21216, 2, 1),  -- Hydross the Unstable SAY_CLEAN_SLAY
+(21216, 5, 1),  -- Hydross the Unstable SAY_CORRUPT_SLAY
+(21214, 5, 1),  -- Fathom-Lord Karathress SAY_SLAY
+(21213, 3, 1),  -- Morogrim Tidewalker SAY_SLAY
+
+-- Gruul's Lair
+(19044, 3, 5),  -- Gruul the Dragonkiller SAY_SLAY
+(18831, 3, 5),  -- High King Maulgar SAY_SLAY
+
+-- Magtheridon's Lair
+(17257, 2, 5),  -- Magtheridon SAY_SLAY
+
+-- Tempest Keep: The Eye
+(19516, 1, 5),  -- Void Reaver SAY_SLAY
+
+-- Black Temple (additional)
+(22948, 1, 1),  -- Gurtogg Bloodboil SAY_SLAY
+(23418, 2, 1),  -- Essence of Suffering SUFF_SAY_SLAY
+(23419, 1, 1),  -- Essence of Desire DESI_SAY_SLAY
+(23420, 1, 1),  -- Essence of Anger ANGER_SAY_SLAY
+
+-- Molten Core
+(12018, 2, 6),  -- Majordomo Executus SAY_SLAY
+(11502, 9, 6),  -- Ragnaros SAY_KILL
+
+-- Sunwell Plateau
+(24882, 6, 7),  -- Brutallus YELL_KILL
+(25038, 1, 7),  -- Felmyst YELL_KILL
+(24850, 1, 7),  -- Kalecgos SAY_EVIL_SLAY
+
+-- Tempest Keep: The Eye (additional)
+(18805, 2, 7);  -- High Astromancer Solarian SAY_KILL

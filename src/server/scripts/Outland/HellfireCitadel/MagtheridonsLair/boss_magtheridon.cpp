@@ -87,7 +87,6 @@ struct boss_magtheridon : public BossAI
         _channelersKilled = 0;
         _currentPhase = 0;
         _castingQuake = false;
-        _recentlySpoken = false;
         _magReleased = false;
         _interruptScheduler.CancelAll();
         scheduler.Schedule(90s, [this](TaskContext context)
@@ -130,16 +129,7 @@ struct boss_magtheridon : public BossAI
 
     void KilledUnit(Unit* /*victim*/) override
     {
-        if (!_recentlySpoken)
-        {
-            Talk(SAY_SLAY);
-            _recentlySpoken = true;
-        }
-
-        scheduler.Schedule(5s, [this](TaskContext /*context*/)
-        {
-            _recentlySpoken = false;
-        });
+        Talk(SAY_SLAY);
     }
 
     void JustDied(Unit* killer) override
@@ -256,7 +246,6 @@ struct boss_magtheridon : public BossAI
 
 private:
     bool _castingQuake;
-    bool _recentlySpoken;
     bool _magReleased;
     uint8 _currentPhase;
     uint8 _channelersKilled;
