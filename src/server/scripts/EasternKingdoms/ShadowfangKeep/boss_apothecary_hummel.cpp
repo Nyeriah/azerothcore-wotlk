@@ -87,12 +87,7 @@ public:
     struct boss_apothecary_hummelAI : public BossAI
     {
         boss_apothecary_hummelAI(Creature* creature) : BossAI(creature, DATA_APOTHECARY_HUMMEL), _deadCount(0), _isDead(false)
-        {
-            scheduler.SetValidator([this]
-            {
-                return !me->HasUnitState(UNIT_STATE_CASTING);
-            });
-        }
+        {        }
 
         void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
         {
@@ -323,12 +318,7 @@ struct npc_apothecary_frye : public npc_apothecary_genericAI
 struct npc_apothecary_baxter : public npc_apothecary_genericAI
 {
     npc_apothecary_baxter(Creature* creature) : npc_apothecary_genericAI(creature, BaxterMovePos)
-    {
-        _scheduler.SetValidator([this]
-        {
-            return !me->HasUnitState(UNIT_STATE_CASTING);
-        });
-    }
+    {    }
 
     void Reset() override
     {

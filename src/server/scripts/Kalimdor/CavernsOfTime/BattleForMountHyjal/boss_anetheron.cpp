@@ -49,12 +49,7 @@ struct boss_anetheron : public BossAI
 public:
     boss_anetheron(Creature* creature) : BossAI(creature, DATA_ANETHERON)
     {
-        _recentlySpoken = false;
-        scheduler.SetValidator([this]
-            {
-                return !me->HasUnitState(UNIT_STATE_CASTING);
-            });
-    }
+        _recentlySpoken = false;    }
 
     void JustEngagedWith(Unit * who) override
     {

@@ -58,12 +58,7 @@ struct boss_murmur : public BossAI
 {
     boss_murmur(Creature* creature) : BossAI(creature, DATA_MURMUR)
     {
-        me->SetCombatMovement(false);
-        scheduler.SetValidator([this]
-        {
-            return !me->HasUnitState(UNIT_STATE_CASTING);
-        });
-    }
+        me->SetCombatMovement(false);    }
 
     void Reset() override
     {

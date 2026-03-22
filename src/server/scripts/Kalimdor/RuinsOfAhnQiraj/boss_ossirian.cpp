@@ -397,11 +397,6 @@ struct npc_anubisath_guardian : public ScriptedAI
     void Reset() override
     {
         _enraged = false;
-
-        _scheduler.SetValidator([this]
-        {
-            return !me->HasUnitState(UNIT_STATE_CASTING);
-        });
     }
 
     void JustEngagedWith(Unit* /*who*/) override

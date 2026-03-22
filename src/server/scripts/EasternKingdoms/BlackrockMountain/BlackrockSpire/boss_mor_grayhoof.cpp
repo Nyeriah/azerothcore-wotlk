@@ -74,11 +74,6 @@ struct boss_mor_grayhoof : public BossAI
 {
     boss_mor_grayhoof(Creature* creature) : BossAI(creature, DATA_MOR_GRAYHOOF)
     {
-        _scheduler.SetValidator([this]
-            {
-                return !me->HasUnitState(UNIT_STATE_CASTING);
-            });
-
         _sleepTargetThreat = 0.f;
     }
 

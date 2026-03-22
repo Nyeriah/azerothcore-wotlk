@@ -1774,11 +1774,7 @@ struct npc_coren_direbrew_sisters : public ScriptedAI
             DoCastSelf(SPELL_SEND_MUG_CONTROL_AURA);
         }
 
-        _scheduler.SetValidator([this]
-        {
-            return !me->HasUnitState(UNIT_STATE_CASTING);
-        })
-        .Schedule(Seconds(2), [this](TaskContext mugChuck)
+        _scheduler.Schedule(Seconds(2), [this](TaskContext mugChuck)
         {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, false, true, -SPELL_HAS_DARK_BREWMAIDENS_BREW))
             {

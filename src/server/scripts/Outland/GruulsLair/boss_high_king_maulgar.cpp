@@ -64,12 +64,7 @@ enum HighKingMaulgar
 struct boss_high_king_maulgar : public BossAI
 {
     boss_high_king_maulgar(Creature* creature) : BossAI(creature, DATA_MAULGAR)
-    {
-        scheduler.SetValidator([this]
-        {
-            return !me->HasUnitState(UNIT_STATE_CASTING);
-        });
-    }
+    {    }
 
     void Reset() override
     {
@@ -171,12 +166,7 @@ struct boss_olm_the_summoner : public ScriptedAI
 {
     boss_olm_the_summoner(Creature* creature) : ScriptedAI(creature), summons(me)
     {
-        instance = creature->GetInstanceScript();
-        _scheduler.SetValidator([this]
-        {
-            return !me->HasUnitState(UNIT_STATE_CASTING);
-        });
-    }
+        instance = creature->GetInstanceScript();    }
 
     SummonList summons;
     InstanceScript* instance;
@@ -247,12 +237,7 @@ struct boss_kiggler_the_crazed : public ScriptedAI
 {
     boss_kiggler_the_crazed(Creature* creature) : ScriptedAI(creature)
     {
-        instance = creature->GetInstanceScript();
-        _scheduler.SetValidator([this]
-        {
-            return !me->HasUnitState(UNIT_STATE_CASTING);
-        });
-    }
+        instance = creature->GetInstanceScript();    }
 
     InstanceScript* instance;
 
@@ -320,12 +305,7 @@ struct boss_blindeye_the_seer : public ScriptedAI
 {
     boss_blindeye_the_seer(Creature* creature) : ScriptedAI(creature)
     {
-        instance = creature->GetInstanceScript();
-        _scheduler.SetValidator([this]
-        {
-            return !me->HasUnitState(UNIT_STATE_CASTING);
-        });
-    }
+        instance = creature->GetInstanceScript();    }
 
     InstanceScript* instance;
 
@@ -380,12 +360,7 @@ struct boss_krosh_firehand : public ScriptedAI
 {
     boss_krosh_firehand(Creature* creature) : ScriptedAI(creature)
     {
-        instance = creature->GetInstanceScript();
-        _scheduler.SetValidator([this]
-        {
-            return !me->HasUnitState(UNIT_STATE_CASTING);
-        });
-    }
+        instance = creature->GetInstanceScript();    }
 
     InstanceScript* instance;
 

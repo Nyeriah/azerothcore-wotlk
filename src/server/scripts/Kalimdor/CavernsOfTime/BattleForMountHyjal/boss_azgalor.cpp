@@ -46,12 +46,7 @@ struct boss_azgalor : public BossAI
 public:
     boss_azgalor(Creature* creature) : BossAI(creature, DATA_AZGALOR)
     {
-        _recentlySpoken = false;
-        scheduler.SetValidator([this]
-            {
-                return !me->HasUnitState(UNIT_STATE_CASTING);
-            });
-    }
+        _recentlySpoken = false;    }
 
     void JustEngagedWith(Unit * who) override
     {

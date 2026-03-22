@@ -2920,11 +2920,6 @@ struct npc_icc_spire_frostwyrm : public ScriptedAI
 {
     npc_icc_spire_frostwyrm(Creature* creature) : ScriptedAI(creature)
     {
-        _scheduler.SetValidator([this]
-        {
-            return !me->HasUnitState(UNIT_STATE_CASTING);
-        });
-
         _canResetFlyingEffects = true;
     }
 

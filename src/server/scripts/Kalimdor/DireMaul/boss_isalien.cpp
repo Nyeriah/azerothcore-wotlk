@@ -55,11 +55,6 @@ struct boss_isalien : public BossAI
         _scheduler.CancelAll();
         summons.DespawnAll();
         _phase = PHASE_NONE;
-
-        _scheduler.SetValidator([this]
-            {
-                return !me->HasUnitState(UNIT_STATE_CASTING);
-            });
     }
 
     void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*type*/, SpellSchoolMask /*school*/) override

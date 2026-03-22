@@ -105,11 +105,6 @@ struct boss_jarien : public BossAI
 {
     boss_jarien(Creature* creature) : BossAI(creature, DATA_JARIEN)
     {
-        _scheduler.SetValidator([this]
-            {
-                return !me->HasUnitState(UNIT_STATE_CASTING);
-            });
-
         me->SetReactState(REACT_PASSIVE);
         me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
         me->SetImmuneToNPC(true);
@@ -230,11 +225,6 @@ struct boss_sothos : public BossAI
 {
     boss_sothos(Creature* creature) : BossAI(creature, DATA_SOTHOS)
     {
-        _scheduler.SetValidator([this]
-            {
-                return !me->HasUnitState(UNIT_STATE_CASTING);
-            });
-
         me->SetReactState(REACT_PASSIVE);
         me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
         me->SetImmuneToNPC(true);

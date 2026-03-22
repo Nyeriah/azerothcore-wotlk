@@ -140,12 +140,7 @@ struct boss_vazruden_the_herald : public BossAI
 struct boss_nazan : public ScriptedAI
 {
     boss_nazan(Creature* creature) : ScriptedAI(creature)
-    {
-        _scheduler.SetValidator([this]
-        {
-            return !me->HasUnitState(UNIT_STATE_CASTING);
-        });
-    }
+    {    }
 
     void Reset() override
     {
@@ -246,12 +241,7 @@ private:
 struct boss_vazruden : public ScriptedAI
 {
     boss_vazruden(Creature* creature) : ScriptedAI(creature)
-    {
-        _scheduler.SetValidator([this]
-        {
-            return !me->HasUnitState(UNIT_STATE_CASTING);
-        });
-    }
+    {    }
 
     void Reset() override
     {

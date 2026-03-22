@@ -53,11 +53,6 @@ public:
             me->RemoveAurasDueToSpell(SPELL_POSSESS_INV);
 
             _scheduler.CancelAll();
-
-            _scheduler.SetValidator([this]
-            {
-                return !me->HasUnitState(UNIT_STATE_CASTING);
-            });
         }
 
         void JustEngagedWith(Unit* /*who*/) override
