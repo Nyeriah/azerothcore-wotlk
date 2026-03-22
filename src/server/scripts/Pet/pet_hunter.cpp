@@ -20,6 +20,7 @@
  * Scriptnames of files in this file should be prefixed with "npc_pet_hun_".
  */
 
+#include "CreatureScript.h"
 #include "PetDefines.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"

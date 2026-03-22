@@ -18,6 +18,7 @@
 #include "Cell.h"
 #include "CellImpl.h"
 #include "CombatAI.h"
+#include "CreatureScript.h"
 #include "GridNotifiers.h"
 #include "PassiveAI.h"
 #include "ScriptedCreature.h"

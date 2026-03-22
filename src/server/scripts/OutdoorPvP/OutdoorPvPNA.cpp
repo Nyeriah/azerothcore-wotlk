@@ -17,6 +17,7 @@
 
 #include "OutdoorPvPNA.h"
 #include "AreaDefines.h"
+#include "CreatureScript.h"
 #include "GameGraveyard.h"
 #include "GridNotifiers.h"
 #include "Language.h"

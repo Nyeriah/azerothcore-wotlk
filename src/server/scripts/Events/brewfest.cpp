@@ -17,6 +17,7 @@
 
 #include "AreaDefines.h"
 #include "CellImpl.h"
+#include "CreatureScript.h"
 #include "GameEventMgr.h"
 #include "GameObjectAI.h"
 #include "GameObjectScript.h"

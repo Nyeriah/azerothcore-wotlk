@@ -16,6 +16,7 @@
  */
 
 #include "AreaDefines.h"
+#include "CreatureScript.h"
 #include "GameEventMgr.h"
 #include "GameObjectScript.h"
 #include "GameTime.h"

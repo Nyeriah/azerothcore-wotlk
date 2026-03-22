@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "CreatureScript.h"
 #include "CreatureTextMgr.h"
 #include "Group.h"
 #include "PassiveAI.h"
