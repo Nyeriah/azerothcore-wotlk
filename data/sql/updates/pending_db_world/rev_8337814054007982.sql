@@ -5,11 +5,10 @@ CREATE TABLE IF NOT EXISTS `creature_multispawn` (
   PRIMARY KEY (`spawnId`, `entry`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Additional creature entries for multi-ID spawning';
 
--- Migrate id2 entries
+-- Migrate id2 and id3 entries
+DELETE FROM `creature_multispawn`;
 INSERT INTO `creature_multispawn` (`spawnId`, `entry`)
 SELECT `guid`, `id2` FROM `creature` WHERE `id2` != 0;
-
--- Migrate id3 entries
 INSERT INTO `creature_multispawn` (`spawnId`, `entry`)
 SELECT `guid`, `id3` FROM `creature` WHERE `id3` != 0;
 
