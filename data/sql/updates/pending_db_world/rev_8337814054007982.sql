@@ -7,9 +7,9 @@ CREATE TABLE IF NOT EXISTS `creature_multispawn` (
 
 -- Migrate id2 and id3 entries
 DELETE FROM `creature_multispawn`;
-INSERT INTO `creature_multispawn` (`spawnId`, `entry`)
+INSERT IGNORE INTO `creature_multispawn` (`spawnId`, `entry`)
 SELECT `guid`, `id2` FROM `creature` WHERE `id2` != 0;
-INSERT INTO `creature_multispawn` (`spawnId`, `entry`)
+INSERT IGNORE INTO `creature_multispawn` (`spawnId`, `entry`)
 SELECT `guid`, `id3` FROM `creature` WHERE `id3` != 0;
 
 -- Drop old index before column rename

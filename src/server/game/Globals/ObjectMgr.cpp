@@ -2498,12 +2498,14 @@ void ObjectMgr::LoadCreatures()
             ObjectGuid::LowType spawnId = fields[0].Get<uint32>();
             uint32 entry = fields[1].Get<uint32>();
 
-            CreatureData* data = const_cast<CreatureData*>(GetCreatureData(spawnId));
-            if (!data)
+            auto creatureDataIt = _creatureDataStore.find(spawnId);
+            if (creatureDataIt == _creatureDataStore.end())
             {
                 LOG_ERROR("sql.sql", "Table `creature_multispawn` has entry for non-existing creature spawn (SpawnId: {}), skipped.", spawnId);
                 continue;
             }
+
+            CreatureData* data = &creatureDataIt->second;
 
             CreatureTemplate const* variantInfo = GetCreatureTemplate(entry);
             if (!variantInfo)
@@ -2535,13 +2537,17 @@ void ObjectMgr::LoadCreatures()
 
             // Populate id2/id3 fields
             if (!data->id2)
+            {
                 data->id2 = entry;
+                ++variantCount;
+            }
             else if (!data->id3)
+            {
                 data->id3 = entry;
+                ++variantCount;
+            }
             else
                 LOG_ERROR("sql.sql", "Table `creature_multispawn` has more than 2 variant entries for creature (SpawnId: {}), extra entry {} skipped.", spawnId, entry);
-
-            ++variantCount;
         } while (variantResult->NextRow());
 
         LOG_INFO("server.loading", ">> Loaded {} creature spawn variants", variantCount);
@@ -2605,7 +2611,7 @@ CreatureData const* ObjectMgr::LoadCreatureDataFromDB(ObjectGuid::LowType spawnI
         creatureData.ScriptId = cInfo->ScriptID;
 
     // Load alternate entries from creature_multispawn
-    QueryResult variantResult = WorldDatabase.Query("SELECT entry FROM creature_multispawn WHERE spawnId = {}", spawnId);
+    QueryResult variantResult = WorldDatabase.Query("SELECT entry FROM creature_multispawn WHERE spawnId = {} ORDER BY entry", spawnId);
     if (variantResult)
     {
         do
@@ -2616,10 +2622,34 @@ CreatureData const* ObjectMgr::LoadCreatureDataFromDB(ObjectGuid::LowType spawnI
                 LOG_ERROR("sql.sql", "Table `creature_multispawn` has creature (SpawnId: {}) with non-existing entry {}, skipped.", spawnId, variantEntry);
                 continue;
             }
+
+            // Check difficulty entries for variant
+            bool diffOk = true;
+            for (uint32 diff = 0; diff < MAX_DIFFICULTY - 1 && diffOk; ++diff)
+            {
+                if (_difficultyEntries[diff].find(variantEntry) != _difficultyEntries[diff].end())
+                {
+                    LOG_ERROR("sql.sql", "Table `creature_multispawn` has creature (SpawnId: {}) with entry {} listed as difficulty template in `creature_template`, skipped.",
+                        spawnId, variantEntry);
+                    diffOk = false;
+                }
+            }
+            if (!diffOk)
+                continue;
+
+            // Validate equipment for variant entry
+            if (creatureData.equipmentId != 0 && !GetEquipmentInfo(variantEntry, creatureData.equipmentId))
+            {
+                LOG_ERROR("sql.sql", "Table `creature_multispawn` has creature (SpawnId: {}) with entry {} where equipment_id {} not found in `creature_equip_template`.",
+                    spawnId, variantEntry, creatureData.equipmentId);
+            }
+
             if (!creatureData.id2)
                 creatureData.id2 = variantEntry;
             else if (!creatureData.id3)
                 creatureData.id3 = variantEntry;
+            else
+                LOG_ERROR("sql.sql", "Table `creature_multispawn` has more than 2 variant entries for creature (SpawnId: {}), extra entry {} skipped.", spawnId, variantEntry);
         } while (variantResult->NextRow());
     }
 
