@@ -540,7 +540,7 @@ public:
             CreatureTemplate const* cTemplate = sObjectMgr->GetCreatureTemplate(data->id1);
             std::string name = cTemplate ? cTemplate->Name : "Unknown";
             time_t remaining = pair.second > now ? pair.second - now : 0;
-            handler->PSendSysMessage("  SpawnId {} - {} (entry {}) - respawns in {} sec", pair.first, name, data->id1, remaining);
+            handler->PSendSysMessage("  DB GUID: {} - {} ({}) - {}s", pair.first, name, data->id1, remaining);
             ++count;
             if (count >= 50)
             {
@@ -560,7 +560,7 @@ public:
             GameObjectTemplate const* goTemplate = sObjectMgr->GetGameObjectTemplate(data->id);
             std::string name = goTemplate ? goTemplate->name : "Unknown";
             time_t remaining = pair.second > now ? pair.second - now : 0;
-            handler->PSendSysMessage("  SpawnId {} - {} (entry {}) - respawns in {} sec", pair.first, name, data->id, remaining);
+            handler->PSendSysMessage("  DB GUID: {} - {} ({}) - {}s", pair.first, name, data->id, remaining);
             ++count;
             if (count >= 50)
             {

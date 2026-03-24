@@ -2709,7 +2709,7 @@ void Map::ProcessRespawns()
         RemoveCreatureRespawnTime(spawnId);
 
         Creature* creature = new Creature();
-        if (!creature->LoadFromDB(spawnId, this, true))
+        if (!creature->LoadCreatureFromDB(spawnId, this, true, true))
             delete creature;
     }
 
@@ -2747,7 +2747,7 @@ void Map::ProcessRespawns()
         RemoveGORespawnTime(spawnId);
 
         GameObject* gameobject = new GameObject();
-        if (!gameobject->LoadFromDB(spawnId, this))
+        if (!gameobject->LoadGameObjectFromDB(spawnId, this, true))
             delete gameobject;
     }
 }
