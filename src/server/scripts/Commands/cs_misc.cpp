@@ -2474,9 +2474,35 @@ public:
     {
         Player* player = handler->GetSession()->GetPlayer();
 
+        // Phase 1: respawn creatures/GOs that still have corpses in the grid
         Acore::RespawnDo u_do;
         Acore::WorldObjectWorker<Acore::RespawnDo> worker(player, u_do);
         Cell::VisitObjects(player, worker, player->GetGridActivationRange());
+
+        // Phase 2: force-respawn creatures/GOs that were fully removed (non-compat mode)
+        // by clearing their respawn times so ProcessRespawns() picks them up
+        Map* map = player->GetMap();
+        uint32 gridId = Acore::ComputeGridCoord(player->GetPositionX(), player->GetPositionY()).GetId();
+
+        std::vector<ObjectGuid::LowType> creaturesToRespawn;
+        for (auto const& pair : map->GetCreatureRespawnTimes())
+        {
+            CreatureData const* data = sObjectMgr->GetCreatureData(pair.first);
+            if (data && Acore::ComputeGridCoord(data->posX, data->posY).GetId() == gridId)
+                creaturesToRespawn.push_back(pair.first);
+        }
+        for (ObjectGuid::LowType spawnId : creaturesToRespawn)
+            map->RemoveCreatureRespawnTime(spawnId);
+
+        std::vector<ObjectGuid::LowType> goesToRespawn;
+        for (auto const& pair : map->GetGORespawnTimes())
+        {
+            GameObjectData const* data = sObjectMgr->GetGameObjectData(pair.first);
+            if (data && Acore::ComputeGridCoord(data->posX, data->posY).GetId() == gridId)
+                goesToRespawn.push_back(pair.first);
+        }
+        for (ObjectGuid::LowType spawnId : goesToRespawn)
+            map->RemoveGORespawnTime(spawnId);
 
         return true;
     }
