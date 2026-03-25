@@ -2116,10 +2116,16 @@ void Creature::Respawn(bool force)
         }
         else
         {
-            // Non-compat mode: remove this creature and clear respawn time
-            // so ProcessRespawns() creates a fresh instance immediately
+            // Non-compat mode: destroy and let ProcessRespawns() recreate
+            if (IsAlive())
+                return;
+
             if (m_spawnId)
-                GetMap()->RemoveCreatureRespawnTime(m_spawnId);
+            {
+                // Set respawn time to now so ProcessRespawns() picks it up
+                time_t now = GameTime::GetGameTime().count();
+                GetMap()->SaveCreatureRespawnTime(m_spawnId, now);
+            }
             AddObjectToRemoveList();
         }
     }

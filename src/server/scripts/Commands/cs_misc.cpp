@@ -2480,9 +2480,10 @@ public:
         Cell::VisitObjects(player, worker, player->GetGridActivationRange());
 
         // Phase 2: force-respawn creatures/GOs that were fully removed (non-compat mode)
-        // by clearing their respawn times so ProcessRespawns() picks them up
+        // by setting their respawn times to now so ProcessRespawns() picks them up
         Map* map = player->GetMap();
         uint32 gridId = Acore::ComputeGridCoord(player->GetPositionX(), player->GetPositionY()).GetId();
+        time_t now = GameTime::GetGameTime().count();
 
         std::vector<ObjectGuid::LowType> creaturesToRespawn;
         for (auto const& pair : map->GetCreatureRespawnTimes())
@@ -2492,7 +2493,7 @@ public:
                 creaturesToRespawn.push_back(pair.first);
         }
         for (ObjectGuid::LowType spawnId : creaturesToRespawn)
-            map->RemoveCreatureRespawnTime(spawnId);
+            map->SaveCreatureRespawnTime(spawnId, now);
 
         std::vector<ObjectGuid::LowType> goesToRespawn;
         for (auto const& pair : map->GetGORespawnTimes())
@@ -2502,7 +2503,7 @@ public:
                 goesToRespawn.push_back(pair.first);
         }
         for (ObjectGuid::LowType spawnId : goesToRespawn)
-            map->RemoveGORespawnTime(spawnId);
+            map->SaveGORespawnTime(spawnId, now);
 
         return true;
     }
