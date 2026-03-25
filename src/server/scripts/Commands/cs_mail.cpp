@@ -91,14 +91,12 @@ public:
             if (i > 0)
                 result += ", ";
 
-            result += Acore::StringFormat(
-                "{}(guid:{})", items[i].item_template, items[i].item_guid);
+            result += Acore::StringFormat("{}(guid:{})", items[i].item_template, items[i].item_guid);
         }
         return result;
     }
 
-    static bool HandleMailListCommand(ChatHandler* handler,
-        Optional<PlayerIdentifier> target)
+    static bool HandleMailListCommand(ChatHandler* handler, Optional<PlayerIdentifier> target)
     {
         if (!target)
             target = PlayerIdentifier::FromTargetOrSelf(handler);
@@ -114,40 +112,25 @@ public:
 
             if (mails.empty())
             {
-                handler->PSendSysMessage(
-                    LANG_MAIL_LIST_EMPTY, handler->playerLink(target->GetName()));
+                handler->PSendSysMessage(LANG_MAIL_LIST_EMPTY, handler->playerLink(target->GetName()));
                 return true;
             }
 
-            handler->PSendSysMessage(
-                LANG_MAIL_LIST_HEADER, handler->playerLink(target->GetName()));
+            handler->PSendSysMessage(LANG_MAIL_LIST_HEADER, handler->playerLink(target->GetName()));
 
             for (Mail const* mail : mails)
             {
                 std::string senderName;
                 if (mail->messageType == MAIL_NORMAL)
-                    sCharacterCache->GetCharacterNameByGuid(
-                        ObjectGuid(HighGuid::Player, mail->sender), senderName);
+                    sCharacterCache->GetCharacterNameByGuid(ObjectGuid(HighGuid::Player, mail->sender), senderName);
 
-                std::string expireStr = Acore::Time::TimeToTimestampStr(
-                    Seconds(mail->expire_time));
-                std::string deliverStr = Acore::Time::TimeToTimestampStr(
-                    Seconds(mail->deliver_time));
+                std::string expireStr = Acore::Time::TimeToTimestampStr(Seconds(mail->expire_time));
+                std::string deliverStr = Acore::Time::TimeToTimestampStr(Seconds(mail->deliver_time));
 
                 handler->PSendSysMessage(LANG_MAIL_LIST_ENTRY,
-                    mail->messageID,
-                    GetMailTypeString(mail->messageType),
-                    GetMailStationeryString(mail->stationery),
-                    mail->mailTemplateId,
-                    mail->sender,
-                    senderName,
-                    mail->receiver,
-                    expireStr,
-                    deliverStr,
-                    mail->money,
-                    mail->COD,
-                    mail->checked,
-                    GetItemListString(mail->items));
+                    mail->messageID, GetMailTypeString(mail->messageType), GetMailStationeryString(mail->stationery),
+                    mail->mailTemplateId, mail->sender, senderName, mail->receiver,
+                    expireStr, deliverStr, mail->money, mail->COD, mail->checked, GetItemListString(mail->items));
             }
         }
         else
@@ -155,78 +138,58 @@ public:
             ObjectGuid::LowType lowGuid = target->GetGUID().GetCounter();
 
             QueryResult result = CharacterDatabase.Query(
-                "SELECT id, messageType, sender, receiver, subject, body,"
-                " expire_time, deliver_time, money, cod, checked,"
-                " stationery, mailTemplateId"
-                " FROM mail WHERE receiver = {} AND deliver_time <= {}"
-                " ORDER BY id DESC",
+                "SELECT id, messageType, sender, receiver, subject, body, expire_time, deliver_time, money, cod, checked, stationery, mailTemplateId"
+                " FROM mail WHERE receiver = {} AND deliver_time <= {} ORDER BY id DESC",
                 lowGuid, GameTime::GetGameTime().count());
 
             if (!result)
             {
-                handler->PSendSysMessage(
-                    LANG_MAIL_LIST_EMPTY, handler->playerLink(target->GetName()));
+                handler->PSendSysMessage(LANG_MAIL_LIST_EMPTY, handler->playerLink(target->GetName()));
                 return true;
             }
 
-            handler->PSendSysMessage(
-                LANG_MAIL_LIST_HEADER, handler->playerLink(target->GetName()));
+            handler->PSendSysMessage(LANG_MAIL_LIST_HEADER, handler->playerLink(target->GetName()));
 
             do
             {
                 Field* fields = result->Fetch();
-                uint32 messageID     = fields[0].Get<uint32>();
-                uint8 messageType    = fields[1].Get<uint8>();
-                uint32 sender        = fields[2].Get<uint32>();
-                uint32 receiver      = fields[3].Get<uint32>();
+                uint32 messageID    = fields[0].Get<uint32>();
+                uint8 messageType   = fields[1].Get<uint8>();
+                uint32 sender       = fields[2].Get<uint32>();
+                uint32 receiver     = fields[3].Get<uint32>();
                 // fields[4] = subject (skipped)
                 // fields[5] = body (skipped)
-                uint32 expireTime    = fields[6].Get<uint32>();
-                uint32 deliverTime   = fields[7].Get<uint32>();
-                uint32 money         = fields[8].Get<uint32>();
-                uint32 cod           = fields[9].Get<uint32>();
-                uint32 checked       = fields[10].Get<uint32>();
-                uint8 stationery     = fields[11].Get<uint8>();
-                uint16 mailTemplate  = fields[12].Get<uint16>();
+                uint32 expireTime   = fields[6].Get<uint32>();
+                uint32 deliverTime  = fields[7].Get<uint32>();
+                uint32 money        = fields[8].Get<uint32>();
+                uint32 cod          = fields[9].Get<uint32>();
+                uint32 checked      = fields[10].Get<uint32>();
+                uint8 stationery    = fields[11].Get<uint8>();
+                uint16 mailTemplate = fields[12].Get<uint16>();
 
                 std::string senderName;
                 if (messageType == MAIL_NORMAL)
-                    sCharacterCache->GetCharacterNameByGuid(
-                        ObjectGuid(HighGuid::Player, sender), senderName);
+                    sCharacterCache->GetCharacterNameByGuid(ObjectGuid(HighGuid::Player, sender), senderName);
 
-                std::string expireStr = Acore::Time::TimeToTimestampStr(
-                    Seconds(expireTime));
-                std::string deliverStr = Acore::Time::TimeToTimestampStr(
-                    Seconds(deliverTime));
+                std::string expireStr = Acore::Time::TimeToTimestampStr(Seconds(expireTime));
+                std::string deliverStr = Acore::Time::TimeToTimestampStr(Seconds(deliverTime));
 
                 // For offline players we don't have item details loaded
                 handler->PSendSysMessage(LANG_MAIL_LIST_ENTRY,
-                    messageID,
-                    GetMailTypeString(messageType),
-                    GetMailStationeryString(stationery),
-                    mailTemplate,
-                    sender,
-                    senderName,
-                    receiver,
-                    expireStr,
-                    deliverStr,
-                    money,
-                    cod,
-                    checked,
-                    "N/A (offline)");
+                    messageID, GetMailTypeString(messageType), GetMailStationeryString(stationery),
+                    mailTemplate, sender, senderName, receiver,
+                    expireStr, deliverStr, money, cod, checked, "N/A (offline)");
             } while (result->NextRow());
         }
 
         return true;
     }
 
-    static bool HandleMailReturnCommand(ChatHandler* handler,
-        PlayerIdentifier target, uint32 mailId)
+    static bool HandleMailReturnCommand(ChatHandler* handler, PlayerIdentifier target, uint32 mailId)
     {
         // Query mail data from DB so this works for offline players
         QueryResult result = CharacterDatabase.Query(
-            "SELECT messageType, sender, receiver, subject, body,"
-            " money, mailTemplateId, checked, deliver_time"
+            "SELECT messageType, sender, receiver, subject, body, money, mailTemplateId, checked, deliver_time"
             " FROM mail WHERE id = {}", mailId);
 
         if (!result)
@@ -280,56 +243,42 @@ public:
 
         Player* player = target.GetConnectedPlayer();
 
-        // Run the same script hook as the client return handler,
-        // failing early before any deletions
+        // Run the same script hook as the client return handler, failing early before any deletions
         if (player)
         {
             Mail* m = player->GetMail(mailId);
             if (m)
             {
-                ObjectGuid senderGuid =
-                    ObjectGuid(HighGuid::Player, sender);
+                ObjectGuid senderGuid = ObjectGuid(HighGuid::Player, sender);
 
                 if (m->HasItems())
                 {
                     for (auto const& itemInfo : m->items)
                     {
-                        Item* item =
-                            player->GetMItem(itemInfo.item_guid);
-                        if (item && !sScriptMgr->OnPlayerCanSendMail(
-                                player, senderGuid, ObjectGuid::Empty,
-                                subject, body, money, 0, item))
+                        Item* item = player->GetMItem(itemInfo.item_guid);
+                        if (item && !sScriptMgr->OnPlayerCanSendMail(player, senderGuid, ObjectGuid::Empty, subject, body, money, 0, item))
                         {
-                            handler->SendErrorMessage(
-                                "A script hook prevented this mail"
-                                " from being returned.");
+                            handler->SendErrorMessage(LANG_MAIL_RETURN_HOOK_BLOCKED);
                             return true;
                         }
                     }
                 }
-                else if (!sScriptMgr->OnPlayerCanSendMail(
-                             player, senderGuid, ObjectGuid::Empty,
-                             subject, body, money, 0, nullptr))
+                else if (!sScriptMgr->OnPlayerCanSendMail(player, senderGuid, ObjectGuid::Empty, subject, body, money, 0, nullptr))
                 {
-                    handler->SendErrorMessage(
-                        "A script hook prevented this mail"
-                        " from being returned.");
+                    handler->SendErrorMessage(LANG_MAIL_RETURN_HOOK_BLOCKED);
                     return true;
                 }
             }
         }
 
         // Same logic as WorldSession::HandleReturnToSender
-        CharacterDatabaseTransaction trans =
-            CharacterDatabase.BeginTransaction();
+        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
-        CharacterDatabasePreparedStatement* stmt =
-            CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_BY_ID);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_BY_ID);
         stmt->SetData(0, mailId);
         trans->Append(stmt);
 
-        stmt = CharacterDatabase.GetPreparedStatement(
-            CHAR_DEL_MAIL_ITEM_BY_ID);
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM_BY_ID);
         stmt->SetData(0, mailId);
         trans->Append(stmt);
 
@@ -340,8 +289,7 @@ public:
         if (player)
         {
             // Online: same logic as WorldSession::HandleReturnToSender
-            // Get pointer before RemoveMail (which removes from deque
-            // but does not delete the object)
+            // Get pointer before RemoveMail (which removes from deque but does not delete the object)
             Mail* m = player->GetMail(mailId);
 
             player->RemoveMail(mailId);
@@ -361,16 +309,12 @@ public:
         }
         else
         {
-            // Offline: load Item* objects from DB using same query
-            // shape as CHAR_SEL_MAILITEMS (LEFT JOIN to handle
-            // dangling mail_items) and same logic as _LoadMailedItem
+            // Offline: load Item* objects from DB using same query shape as CHAR_SEL_MAILITEMS
+            // (LEFT JOIN to handle dangling mail_items) and same logic as Player::_LoadMailedItem
             QueryResult itemResult = CharacterDatabase.Query(
-                "SELECT creatorGuid, giftCreatorGuid, count, duration,"
-                " charges, flags, enchantments, randomPropertyId,"
-                " durability, playedTime, text, mi.item_guid, itemEntry,"
-                " ii.owner_guid"
-                " FROM mail_items mi"
-                " LEFT JOIN item_instance ii ON mi.item_guid = ii.guid"
+                "SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments,"
+                " randomPropertyId, durability, playedTime, text, mi.item_guid, itemEntry, ii.owner_guid"
+                " FROM mail_items mi LEFT JOIN item_instance ii ON mi.item_guid = ii.guid"
                 " WHERE mi.mail_id = {}", mailId);
 
             if (itemResult)
@@ -378,37 +322,26 @@ public:
                 do
                 {
                     Field* itemFields = itemResult->Fetch();
-                    uint32 itemGuid = itemFields[11].Get<uint32>();
+                    uint32 itemGuid  = itemFields[11].Get<uint32>();
                     uint32 itemEntry = itemFields[12].Get<uint32>();
 
                     // Handle dangling mail_items (missing item_instance)
                     if (!itemEntry)
                     {
-                        LOG_ERROR("misc",
-                            "cs_mail: Mail #{} has dangling mail_items"
-                            " row for item_guid {}. Cleaning up.",
-                            mailId, itemGuid);
+                        LOG_ERROR("misc", "cs_mail: Mail #{} has dangling mail_items row for item_guid {}. Cleaning up.", mailId, itemGuid);
 
-                        CharacterDatabasePreparedStatement* delStmt =
-                            CharacterDatabase.GetPreparedStatement(
-                                CHAR_DEL_INVALID_MAIL_ITEM);
+                        CharacterDatabasePreparedStatement* delStmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_MAIL_ITEM);
                         delStmt->SetData(0, itemGuid);
                         trans->Append(delStmt);
                         continue;
                     }
 
-                    ItemTemplate const* proto =
-                        sObjectMgr->GetItemTemplate(itemEntry);
+                    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry);
                     if (!proto)
                     {
-                        LOG_ERROR("misc",
-                            "cs_mail: Mail #{} has unknown item"
-                            " (entry: {}, guid: {}). Cleaning up.",
-                            mailId, itemEntry, itemGuid);
+                        LOG_ERROR("misc", "cs_mail: Mail #{} has unknown item (entry: {}, guid: {}). Cleaning up.", mailId, itemEntry, itemGuid);
 
-                        CharacterDatabasePreparedStatement* delStmt =
-                            CharacterDatabase.GetPreparedStatement(
-                                CHAR_DEL_INVALID_MAIL_ITEM);
+                        CharacterDatabasePreparedStatement* delStmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_MAIL_ITEM);
                         delStmt->SetData(0, itemGuid);
                         trans->Append(delStmt);
                         continue;
@@ -416,27 +349,19 @@ public:
 
                     Item* item = NewItemOrBag(proto);
                     ObjectGuid ownerGuid = itemFields[13].Get<uint32>()
-                        ? ObjectGuid::Create<HighGuid::Player>(
-                              itemFields[13].Get<uint32>())
+                        ? ObjectGuid::Create<HighGuid::Player>(itemFields[13].Get<uint32>())
                         : ObjectGuid::Empty;
 
-                    if (!item->LoadFromDB(
-                            itemGuid, ownerGuid, itemFields, itemEntry))
+                    if (!item->LoadFromDB(itemGuid, ownerGuid, itemFields, itemEntry))
                     {
-                        LOG_ERROR("misc",
-                            "cs_mail: Item (GUID: {}) in mail #{}"
-                            " failed to load. Cleaning up.",
-                            itemGuid, mailId);
+                        LOG_ERROR("misc", "cs_mail: Item (GUID: {}) in mail #{} failed to load. Cleaning up.", itemGuid, mailId);
 
-                        CharacterDatabasePreparedStatement* delStmt =
-                            CharacterDatabase.GetPreparedStatement(
-                                CHAR_DEL_INVALID_MAIL_ITEM);
+                        CharacterDatabasePreparedStatement* delStmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_MAIL_ITEM);
                         delStmt->SetData(0, itemGuid);
                         trans->Append(delStmt);
 
                         item->FSetState(ITEM_REMOVED);
-                        CharacterDatabaseTransaction nullTrans =
-                            CharacterDatabaseTransaction(nullptr);
+                        CharacterDatabaseTransaction nullTrans = CharacterDatabaseTransaction(nullptr);
                         item->SaveToDB(nullTrans);
                         return true;
                     }
@@ -446,20 +371,14 @@ public:
             }
         }
 
-        uint32 accountId =
-            sCharacterCache->GetCharacterAccountIdByGuid(
-                ObjectGuid(HighGuid::Player, receiver));
-
-        draft.AddMoney(money).SendReturnToSender(
-            accountId, receiver, sender, trans);
+        uint32 accountId = sCharacterCache->GetCharacterAccountIdByGuid(ObjectGuid(HighGuid::Player, receiver));
+        draft.AddMoney(money).SendReturnToSender(accountId, receiver, sender, trans);
 
         CharacterDatabase.CommitTransaction(trans);
 
-        sCharacterCache->DecreaseCharacterMailCount(
-            ObjectGuid(HighGuid::Player, receiver));
+        sCharacterCache->DecreaseCharacterMailCount(ObjectGuid(HighGuid::Player, receiver));
 
-        handler->PSendSysMessage(LANG_MAIL_RETURN_SUCCESS, mailId,
-            handler->playerLink(target.GetName()));
+        handler->PSendSysMessage(LANG_MAIL_RETURN_SUCCESS, mailId, handler->playerLink(target.GetName()));
         return true;
     }
 };
