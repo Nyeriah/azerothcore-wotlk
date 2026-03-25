@@ -1403,6 +1403,37 @@ enum AcoreStrings
 
     LANG_DEBUG_LFG_ON                             = 30096,
     LANG_DEBUG_LFG_OFF                            = 30097,
-    LANG_DEBUG_LFG_CONF                           = 30098
+    LANG_DEBUG_LFG_CONF                           = 30098,
+
+    // debug loot command
+    LANG_DEBUG_LOOT_HEADER                        = 30099,
+    LANG_DEBUG_LOOT_ITEM                          = 30100,
+    LANG_DEBUG_LOOT_ITEM_QUEST                    = 30101,
+    LANG_DEBUG_LOOT_GOLD                          = 30102,
+    LANG_DEBUG_LOOT_EMPTY                         = 30103,
+    LANG_DEBUG_LOOT_INVALID_TYPE                  = 30104,
+    LANG_DEBUG_LOOT_NO_TEMPLATE                   = 30105,
+    LANG_DEBUG_LOOT_HEADER_MULTI                  = 30106,
+    LANG_DEBUG_LOOT_ITEM_MULTI                    = 30107,
+    LANG_DEBUG_LOOT_ITEM_QUEST_MULTI              = 30108,
+    LANG_DEBUG_LOOT_GOLD_MULTI                    = 30109,
+
+    // debug factionchange command (30110-30125)
+    LANG_DEBUG_FACTIONCHANGE_HEADER               = 30110,
+    LANG_DEBUG_FACTIONCHANGE_FLAG_FACTION          = 30111,
+    LANG_DEBUG_FACTIONCHANGE_FLAG_RACE             = 30112,
+    LANG_DEBUG_FACTIONCHANGE_FLAG_NONE             = 30113,
+    LANG_DEBUG_FACTIONCHANGE_GUILD_FAIL            = 30114,
+    LANG_DEBUG_FACTIONCHANGE_GUILD_OK              = 30115,
+    LANG_DEBUG_FACTIONCHANGE_ARENA_CAPTAIN_FAIL    = 30116,
+    LANG_DEBUG_FACTIONCHANGE_ARENA_CAPTAIN_OK      = 30117,
+    LANG_DEBUG_FACTIONCHANGE_MAIL_FAIL             = 30118,
+    LANG_DEBUG_FACTIONCHANGE_MAIL_OK               = 30119,
+    LANG_DEBUG_FACTIONCHANGE_AUCTION_FAIL          = 30120,
+    LANG_DEBUG_FACTIONCHANGE_AUCTION_OK            = 30121,
+    LANG_DEBUG_FACTIONCHANGE_GOLD_FAIL             = 30122,
+    LANG_DEBUG_FACTIONCHANGE_GOLD_OK               = 30123,
+    LANG_DEBUG_FACTIONCHANGE_GOLD_NOLIMIT          = 30124,
+    LANG_DEBUG_FACTIONCHANGE_NA                    = 30125
 };
 #endif
