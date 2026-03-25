@@ -225,7 +225,7 @@ public:
         // Query mail data from DB so this works for offline players
         QueryResult result = CharacterDatabase.Query(
             "SELECT messageType, sender, receiver, subject, body,"
-            " money, mailTemplateId, checked"
+            " money, mailTemplateId, checked, deliver_time"
             " FROM mail WHERE id = {}", mailId);
 
         if (!result)
@@ -243,6 +243,14 @@ public:
         uint32 money        = fields[5].Get<uint32>();
         uint16 mailTemplate = fields[6].Get<uint16>();
         uint32 checked      = fields[7].Get<uint32>();
+        uint32 deliverTime  = fields[8].Get<uint32>();
+
+        // Reject undelivered mail, same as the core handler
+        if (deliverTime > GameTime::GetGameTime().count())
+        {
+            handler->SendErrorMessage(LANG_MAIL_RETURN_NOT_FOUND, mailId);
+            return true;
+        }
 
         // Verify the mail belongs to the target player
         if (receiver != target.GetGUID().GetCounter())
@@ -313,15 +321,16 @@ public:
         }
         else
         {
-            // Offline: load Item* objects from DB using same
-            // fields as CHAR_SEL_MAILITEMS / Player::_LoadMailedItem
+            // Offline: load Item* objects from DB using same query
+            // shape as CHAR_SEL_MAILITEMS (LEFT JOIN to handle
+            // dangling mail_items) and same logic as _LoadMailedItem
             QueryResult itemResult = CharacterDatabase.Query(
                 "SELECT creatorGuid, giftCreatorGuid, count, duration,"
                 " charges, flags, enchantments, randomPropertyId,"
-                " durability, playedTime, text, item_guid, itemEntry,"
+                " durability, playedTime, text, mi.item_guid, itemEntry,"
                 " ii.owner_guid"
                 " FROM mail_items mi"
-                " INNER JOIN item_instance ii ON mi.item_guid = ii.guid"
+                " LEFT JOIN item_instance ii ON mi.item_guid = ii.guid"
                 " WHERE mi.mail_id = {}", mailId);
 
             if (itemResult)
@@ -332,10 +341,38 @@ public:
                     uint32 itemGuid = itemFields[11].Get<uint32>();
                     uint32 itemEntry = itemFields[12].Get<uint32>();
 
+                    // Handle dangling mail_items (missing item_instance)
+                    if (!itemEntry)
+                    {
+                        LOG_ERROR("misc",
+                            "cs_mail: Mail #{} has dangling mail_items"
+                            " row for item_guid {}. Cleaning up.",
+                            mailId, itemGuid);
+
+                        CharacterDatabasePreparedStatement* delStmt =
+                            CharacterDatabase.GetPreparedStatement(
+                                CHAR_DEL_INVALID_MAIL_ITEM);
+                        delStmt->SetData(0, itemGuid);
+                        trans->Append(delStmt);
+                        continue;
+                    }
+
                     ItemTemplate const* proto =
                         sObjectMgr->GetItemTemplate(itemEntry);
                     if (!proto)
+                    {
+                        LOG_ERROR("misc",
+                            "cs_mail: Mail #{} has unknown item"
+                            " (entry: {}, guid: {}). Cleaning up.",
+                            mailId, itemEntry, itemGuid);
+
+                        CharacterDatabasePreparedStatement* delStmt =
+                            CharacterDatabase.GetPreparedStatement(
+                                CHAR_DEL_INVALID_MAIL_ITEM);
+                        delStmt->SetData(0, itemGuid);
+                        trans->Append(delStmt);
                         continue;
+                    }
 
                     Item* item = NewItemOrBag(proto);
                     ObjectGuid ownerGuid = itemFields[13].Get<uint32>()
@@ -346,8 +383,22 @@ public:
                     if (!item->LoadFromDB(
                             itemGuid, ownerGuid, itemFields, itemEntry))
                     {
-                        delete item;
-                        continue;
+                        LOG_ERROR("misc",
+                            "cs_mail: Item (GUID: {}) in mail #{}"
+                            " failed to load. Cleaning up.",
+                            itemGuid, mailId);
+
+                        CharacterDatabasePreparedStatement* delStmt =
+                            CharacterDatabase.GetPreparedStatement(
+                                CHAR_DEL_INVALID_MAIL_ITEM);
+                        delStmt->SetData(0, itemGuid);
+                        trans->Append(delStmt);
+
+                        item->FSetState(ITEM_REMOVED);
+                        CharacterDatabaseTransaction nullTrans =
+                            CharacterDatabaseTransaction(nullptr);
+                        item->SaveToDB(nullTrans);
+                        return true;
                     }
 
                     draft.AddItem(item);
