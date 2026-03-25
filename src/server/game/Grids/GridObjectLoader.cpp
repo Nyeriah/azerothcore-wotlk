@@ -39,7 +39,7 @@ void GridObjectLoader::LoadCreatures(CellGuidSet const& guid_set, Map* map)
 {
     for (ObjectGuid::LowType const& guid : guid_set)
     {
-        // Skip creatures in manual-spawn groups unless the group is active on this map
+        // Skip spawns whose spawn group is not active on this map
         CreatureData const* cData = sObjectMgr->GetCreatureData(guid);
         if (cData && !map->IsSpawnGroupActive(cData->spawnGroupId))
             continue;
@@ -71,7 +71,7 @@ void GridObjectLoader::LoadGameObjects(CellGuidSet const& guid_set, Map* map)
     {
         GameObjectData const* data = sObjectMgr->GetGameObjectData(guid);
 
-        // Skip gameobjects in manual-spawn groups unless the group is active on this map
+        // Skip spawns whose spawn group is not active on this map
         if (data && !map->IsSpawnGroupActive(data->spawnGroupId))
             continue;
 

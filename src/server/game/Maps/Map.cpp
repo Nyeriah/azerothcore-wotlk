@@ -2585,14 +2585,14 @@ bool Map::SpawnGroupSpawn(uint32 groupId, bool ignoreRespawn /*= false*/, bool f
             case SPAWN_TYPE_CREATURE:
             {
                 Creature* creature = new Creature();
-                if (!creature->LoadFromDB(spawnId, this, true))
+                if (!creature->LoadCreatureFromDB(spawnId, this, true, true))
                     delete creature;
                 break;
             }
             case SPAWN_TYPE_GAMEOBJECT:
             {
                 GameObject* gameobject = new GameObject();
-                if (!gameobject->LoadFromDB(spawnId, this))
+                if (!gameobject->LoadGameObjectFromDB(spawnId, this, true))
                     delete gameobject;
                 break;
             }

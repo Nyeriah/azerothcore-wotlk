@@ -8712,6 +8712,8 @@ void ObjectMgr::LoadSpawnGroupTemplates()
 {
     uint32 oldMSTime = getMSTime();
 
+    _spawnGroupDataStore.clear();
+
     //                                               0        1          2
     QueryResult result = WorldDatabase.Query("SELECT groupId, groupName, groupFlags FROM spawn_group_template");
 
@@ -8767,6 +8769,13 @@ void ObjectMgr::LoadSpawnGroupTemplates()
 void ObjectMgr::LoadSpawnGroups()
 {
     uint32 oldMSTime = getMSTime();
+
+    // Reset prior state for hot-reload support
+    _spawnGroupMapStore.clear();
+    for (auto& [id, data] : _creatureDataStore)
+        data.spawnGroupId = 0;
+    for (auto& [id, data] : _gameObjectDataStore)
+        data.spawnGroupId = 0;
 
     //                                               0        1          2
     QueryResult result = WorldDatabase.Query("SELECT groupId, spawnType, spawnId FROM spawn_group");

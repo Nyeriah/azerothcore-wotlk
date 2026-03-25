@@ -16,6 +16,7 @@ CREATE TABLE `spawn_group` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Insert default spawn groups
+DELETE FROM `spawn_group_template` WHERE `groupId` IN (0, 1);
 INSERT INTO `spawn_group_template` (`groupId`, `groupName`, `groupFlags`) VALUES
 (0, 'Default Group', 0x01),    -- SYSTEM (dynamic respawn by default)
 (1, 'Legacy Group', 0x03);     -- SYSTEM | COMPATIBILITY_MODE
