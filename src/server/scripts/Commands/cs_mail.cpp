@@ -26,6 +26,7 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 #include "Timer.h"
 
 using namespace Acore::ChatCommands;
@@ -277,6 +278,47 @@ public:
             return true;
         }
 
+        Player* player = target.GetConnectedPlayer();
+
+        // Run the same script hook as the client return handler,
+        // failing early before any deletions
+        if (player)
+        {
+            Mail* m = player->GetMail(mailId);
+            if (m)
+            {
+                ObjectGuid senderGuid =
+                    ObjectGuid(HighGuid::Player, sender);
+
+                if (m->HasItems())
+                {
+                    for (auto const& itemInfo : m->items)
+                    {
+                        Item* item =
+                            player->GetMItem(itemInfo.item_guid);
+                        if (item && !sScriptMgr->OnPlayerCanSendMail(
+                                player, senderGuid, ObjectGuid::Empty,
+                                subject, body, money, 0, item))
+                        {
+                            handler->SendErrorMessage(
+                                "A script hook prevented this mail"
+                                " from being returned.");
+                            return true;
+                        }
+                    }
+                }
+                else if (!sScriptMgr->OnPlayerCanSendMail(
+                             player, senderGuid, ObjectGuid::Empty,
+                             subject, body, money, 0, nullptr))
+                {
+                    handler->SendErrorMessage(
+                        "A script hook prevented this mail"
+                        " from being returned.");
+                    return true;
+                }
+            }
+        }
+
         // Same logic as WorldSession::HandleReturnToSender
         CharacterDatabaseTransaction trans =
             CharacterDatabase.BeginTransaction();
@@ -290,8 +332,6 @@ public:
             CHAR_DEL_MAIL_ITEM_BY_ID);
         stmt->SetData(0, mailId);
         trans->Append(stmt);
-
-        Player* player = target.GetConnectedPlayer();
 
         MailDraft draft(subject, body);
         if (mailTemplate)
