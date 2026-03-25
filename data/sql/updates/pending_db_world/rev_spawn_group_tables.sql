@@ -20,3 +20,29 @@ DELETE FROM `spawn_group_template` WHERE `groupId` IN (0, 1);
 INSERT INTO `spawn_group_template` (`groupId`, `groupName`, `groupFlags`) VALUES
 (0, 'Default Group', 0x01),    -- SYSTEM (dynamic respawn by default)
 (1, 'Legacy Group', 0x03);     -- SYSTEM | COMPATIBILITY_MODE
+
+-- Register spawn group commands
+DELETE FROM `command` WHERE `name` IN ('list respawns', 'npc spawngroup', 'npc despawngroup', 'gobject spawngroup', 'gobject despawngroup', 'reload spawn_group');
+INSERT INTO `command` (`name`, `security`, `help`) VALUES
+('list respawns', 2, 'Syntax: .list respawns\r\nShows all pending creature and gameobject respawns on the current map.'),
+('npc spawngroup', 3, 'Syntax: .npc spawngroup #groupId\r\nSpawns all creatures in the given spawn group.'),
+('npc despawngroup', 3, 'Syntax: .npc despawngroup #groupId\r\nDespawns all creatures in the given spawn group.'),
+('gobject spawngroup', 3, 'Syntax: .gobject spawngroup #groupId\r\nSpawns all gameobjects in the given spawn group.'),
+('gobject despawngroup', 3, 'Syntax: .gobject despawngroup #groupId\r\nDespawns all gameobjects in the given spawn group.'),
+('reload spawn_group', 3, 'Syntax: .reload spawn_group\r\nReloads the spawn_group_template and spawn_group tables.');
+
+-- Spawn group localized strings
+DELETE FROM `acore_string` WHERE `entry` BETWEEN 35411 AND 35424;
+INSERT INTO `acore_string` (`entry`, `content_default`, `locale_koKR`, `locale_frFR`, `locale_deDE`, `locale_zhCN`, `locale_zhTW`, `locale_esES`, `locale_esMX`, `locale_ruRU`) VALUES
+(35411, 'Cannot manually spawn system group {} ({}).', '시스템 그룹 {} ({})을(를) 수동으로 생성할 수 없습니다.', 'Impossible de faire apparaître manuellement le groupe système {} ({}).', 'Systemgruppe {} ({}) kann nicht manuell gespawnt werden.', '无法手动生成系统组 {} ({})。', '無法手動生成系統組 {} ({})。', 'No se puede generar manualmente el grupo del sistema {} ({}).', 'No se puede generar manualmente el grupo del sistema {} ({}).', 'Невозможно вручную создать системную группу {} ({}).'),
+(35412, 'Spawn group {} ({}) spawned successfully.', '스폰 그룹 {} ({})이(가) 성공적으로 생성되었습니다.', 'Le groupe d''apparition {} ({}) a été créé avec succès.', 'Spawngruppe {} ({}) erfolgreich erstellt.', '刷新组 {} ({}) 已成功生成。', '重生組 {} ({}) 已成功生成。', 'Grupo de aparición {} ({}) generado correctamente.', 'Grupo de aparición {} ({}) generado correctamente.', 'Группа спавна {} ({}) успешно создана.'),
+(35413, 'Failed to spawn group {} ({}).', '스폰 그룹 {} ({}) 생성에 실패했습니다.', 'Échec de l''apparition du groupe {} ({}).', 'Spawngruppe {} ({}) konnte nicht erstellt werden.', '生成组 {} ({}) 失败。', '生成組 {} ({}) 失敗。', 'Error al generar el grupo {} ({}).', 'Error al generar el grupo {} ({}).', 'Не удалось создать группу спавна {} ({}).'),
+(35414, 'Cannot manually despawn system group {} ({}).', '시스템 그룹 {} ({})을(를) 수동으로 제거할 수 없습니다.', 'Impossible de retirer manuellement le groupe système {} ({}).', 'Systemgruppe {} ({}) kann nicht manuell entfernt werden.', '无法手动移除系统组 {} ({})。', '無法手動移除系統組 {} ({})。', 'No se puede eliminar manualmente el grupo del sistema {} ({}).', 'No se puede eliminar manualmente el grupo del sistema {} ({}).', 'Невозможно вручную удалить системную группу {} ({}).'),
+(35415, 'Spawn group {} ({}) despawned successfully.', '스폰 그룹 {} ({})이(가) 성공적으로 제거되었습니다.', 'Le groupe d''apparition {} ({}) a été retiré avec succès.', 'Spawngruppe {} ({}) erfolgreich entfernt.', '刷新组 {} ({}) 已成功移除。', '重生組 {} ({}) 已成功移除。', 'Grupo de aparición {} ({}) eliminado correctamente.', 'Grupo de aparición {} ({}) eliminado correctamente.', 'Группа спавна {} ({}) успешно удалена.'),
+(35416, 'Failed to despawn group {} ({}).', '스폰 그룹 {} ({}) 제거에 실패했습니다.', 'Échec du retrait du groupe {} ({}).', 'Spawngruppe {} ({}) konnte nicht entfernt werden.', '移除组 {} ({}) 失败。', '移除組 {} ({}) 失敗。', 'Error al eliminar el grupo {} ({}).', 'Error al eliminar el grupo {} ({}).', 'Не удалось удалить группу спавна {} ({}).'),
+(35419, 'Pending creature respawns on map {} (instance {}):', '맵 {} (인스턴스 {})의 대기 중인 생물 리스폰:', 'Réapparitions de créatures en attente sur la carte {} (instance {}) :', 'Ausstehende Kreatur-Respawns auf Karte {} (Instanz {}):', '地图 {} (副本 {}) 上待处理的生物重生:', '地圖 {} (副本 {}) 上待處理的生物重生:', 'Reapariciones de criaturas pendientes en mapa {} (instancia {}):', 'Reapariciones de criaturas pendientes en mapa {} (instancia {}):', 'Ожидающие респауны существ на карте {} (инстанс {}):'),
+(35420, '  DB GUID: {} - {} ({}) - {}s', '  DB GUID: {} - {} ({}) - {}초', '  DB GUID : {} - {} ({}) - {}s', '  DB GUID: {} - {} ({}) - {}s', '  DB GUID: {} - {} ({}) - {}秒', '  DB GUID: {} - {} ({}) - {}秒', '  DB GUID: {} - {} ({}) - {}s', '  DB GUID: {} - {} ({}) - {}s', '  DB GUID: {} - {} ({}) - {}с'),
+(35421, 'Pending gameobject respawns:', '대기 중인 게임오브젝트 리스폰:', 'Réapparitions de game objects en attente :', 'Ausstehende Spielobjekt-Respawns:', '待处理的游戏对象重生:', '待處理的遊戲物件重生:', 'Reapariciones de objetos pendientes:', 'Reapariciones de objetos pendientes:', 'Ожидающие респауны игровых объектов:'),
+(35422, '  DB GUID: {} - {} ({}) - {}s', '  DB GUID: {} - {} ({}) - {}초', '  DB GUID : {} - {} ({}) - {}s', '  DB GUID: {} - {} ({}) - {}s', '  DB GUID: {} - {} ({}) - {}秒', '  DB GUID: {} - {} ({}) - {}秒', '  DB GUID: {} - {} ({}) - {}s', '  DB GUID: {} - {} ({}) - {}s', '  DB GUID: {} - {} ({}) - {}с'),
+(35423, '  ... and more (limited to 50)', '  ... 그 외 다수 (50개로 제한)', '  ... et plus (limité à 50)', '  ... und mehr (auf 50 begrenzt)', '  ... 以及更多（限制为50）', '  ... 以及更多（限制為50）', '  ... y más (limitado a 50)', '  ... y más (limitado a 50)', '  ... и ещё (ограничено 50)'),
+(35424, 'Spawn group {} not found.', '스폰 그룹 {}을(를) 찾을 수 없습니다.', 'Groupe d''apparition {} introuvable.', 'Spawngruppe {} nicht gefunden.', '刷新组 {} 未找到。', '重生組 {} 未找到。', 'Grupo de aparición {} no encontrado.', 'Grupo de aparición {} no encontrado.', 'Группа спавна {} не найдена.');

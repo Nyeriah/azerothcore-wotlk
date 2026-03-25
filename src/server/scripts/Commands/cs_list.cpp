@@ -530,7 +530,7 @@ public:
         uint32 count = 0;
         time_t now = GameTime::GetGameTime().count();
 
-        handler->PSendSysMessage("Pending creature respawns on map {} (instance {}):", map->GetId(), map->GetInstanceId());
+        handler->PSendSysMessage(LANG_LIST_RESPAWNS_CREATURE_HEADER, map->GetId(), map->GetInstanceId());
         for (auto const& pair : map->GetCreatureRespawnTimes())
         {
             CreatureData const* data = sObjectMgr->GetCreatureData(pair.first);
@@ -540,17 +540,17 @@ public:
             CreatureTemplate const* cTemplate = sObjectMgr->GetCreatureTemplate(data->id1);
             std::string name = cTemplate ? cTemplate->Name : "Unknown";
             time_t remaining = pair.second > now ? pair.second - now : 0;
-            handler->PSendSysMessage("  DB GUID: {} - {} ({}) - {}s", pair.first, name, data->id1, remaining);
+            handler->PSendSysMessage(LANG_LIST_RESPAWNS_CREATURE_ENTRY, pair.first, name, data->id1, remaining);
             ++count;
             if (count >= 50)
             {
-                handler->PSendSysMessage("  ... and more (limited to 50)");
+                handler->SendSysMessage(LANG_LIST_RESPAWNS_LIMIT);
                 break;
             }
         }
 
         count = 0;
-        handler->PSendSysMessage("Pending gameobject respawns:");
+        handler->SendSysMessage(LANG_LIST_RESPAWNS_GO_HEADER);
         for (auto const& pair : map->GetGORespawnTimes())
         {
             GameObjectData const* data = sObjectMgr->GetGameObjectData(pair.first);
@@ -560,11 +560,11 @@ public:
             GameObjectTemplate const* goTemplate = sObjectMgr->GetGameObjectTemplate(data->id);
             std::string name = goTemplate ? goTemplate->name : "Unknown";
             time_t remaining = pair.second > now ? pair.second - now : 0;
-            handler->PSendSysMessage("  DB GUID: {} - {} ({}) - {}s", pair.first, name, data->id, remaining);
+            handler->PSendSysMessage(LANG_LIST_RESPAWNS_GO_ENTRY, pair.first, name, data->id, remaining);
             ++count;
             if (count >= 50)
             {
-                handler->PSendSysMessage("  ... and more (limited to 50)");
+                handler->SendSysMessage(LANG_LIST_RESPAWNS_LIMIT);
                 break;
             }
         }

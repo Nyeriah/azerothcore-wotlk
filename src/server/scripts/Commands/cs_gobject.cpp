@@ -700,20 +700,20 @@ public:
         SpawnGroupTemplateData const* groupData = sObjectMgr->GetSpawnGroupData(groupId);
         if (!groupData)
         {
-            handler->SendErrorMessage("Spawn group {} not found.", groupId);
+            handler->SendErrorMessage(LANG_SPAWNGROUP_NOT_FOUND, groupId);
             return false;
         }
 
         if (groupData->flags & SPAWNGROUP_FLAG_SYSTEM)
         {
-            handler->SendErrorMessage("Cannot manually spawn system group {} ({}).", groupId, groupData->name);
+            handler->SendErrorMessage(LANG_SPAWNGROUP_SPAWN_SYSTEM_ERROR, groupId, groupData->name);
             return false;
         }
 
         if (player->GetMap()->SpawnGroupSpawn(groupId, true, true))
-            handler->PSendSysMessage("Spawn group {} ({}) spawned successfully.", groupId, groupData->name);
+            handler->PSendSysMessage(LANG_SPAWNGROUP_SPAWN_SUCCESS, groupId, groupData->name);
         else
-            handler->SendErrorMessage("Failed to spawn group {} ({}).", groupId, groupData->name);
+            handler->SendErrorMessage(LANG_SPAWNGROUP_SPAWN_FAILED, groupId, groupData->name);
 
         return true;
     }
@@ -727,20 +727,20 @@ public:
         SpawnGroupTemplateData const* groupData = sObjectMgr->GetSpawnGroupData(groupId);
         if (!groupData)
         {
-            handler->SendErrorMessage("Spawn group {} not found.", groupId);
+            handler->SendErrorMessage(LANG_SPAWNGROUP_NOT_FOUND, groupId);
             return false;
         }
 
         if (groupData->flags & SPAWNGROUP_FLAG_SYSTEM)
         {
-            handler->SendErrorMessage("Cannot manually despawn system group {} ({}).", groupId, groupData->name);
+            handler->SendErrorMessage(LANG_SPAWNGROUP_DESPAWN_SYSTEM_ERROR, groupId, groupData->name);
             return false;
         }
 
         if (player->GetMap()->SpawnGroupDespawn(groupId, true))
-            handler->PSendSysMessage("Spawn group {} ({}) despawned successfully.", groupId, groupData->name);
+            handler->PSendSysMessage(LANG_SPAWNGROUP_DESPAWN_SUCCESS, groupId, groupData->name);
         else
-            handler->SendErrorMessage("Failed to despawn group {} ({}).", groupId, groupData->name);
+            handler->SendErrorMessage(LANG_SPAWNGROUP_DESPAWN_FAILED, groupId, groupData->name);
 
         return true;
     }
