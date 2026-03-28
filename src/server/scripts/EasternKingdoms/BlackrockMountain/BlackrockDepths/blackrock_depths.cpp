@@ -452,7 +452,6 @@ private:
     uint32 _mightyBlowTimer;
 };
 
-
 // npc_rocknot
 enum RocknotSays
 {
