@@ -18,6 +18,7 @@
 #include "AchievementMgr.h"
 #include "Chat.h"
 #include "CommandScript.h"
+#include "Language.h"
 #include "Player.h"
 
 using namespace Acore::ChatCommands;
@@ -53,9 +54,15 @@ public:
         }
 
         if (player->IsConnected())
+        {
             player->GetConnectedPlayer()->CompletedAchievement(achievementEntry);
+            handler->PSendSysMessage(LANG_ACHIEVEMENT_ADD_ONLINE, achievementEntry->ID, player->GetName());
+        }
         else
+        {
             sAchievementMgr->CompletedAchievementForOfflinePlayer(player->GetGUID().GetCounter(), achievementEntry);
+            handler->PSendSysMessage(LANG_ACHIEVEMENT_ADD_OFFLINE, achievementEntry->ID, player->GetName());
+        }
 
         return true;
     }
