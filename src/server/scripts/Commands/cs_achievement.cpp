@@ -42,7 +42,7 @@ public:
         return commandTable;
     }
 
-    static bool HandleAchievementAddCommand(ChatHandler* handler, Optional<PlayerIdentifier> player, AchievementEntry const* achievementEntry)
+    static bool HandleAchievementAddCommand(ChatHandler* handler, AchievementEntry const* achievementEntry, Optional<PlayerIdentifier> player)
     {
         if (!player)
             player = PlayerIdentifier::FromTargetOrSelf(handler);
