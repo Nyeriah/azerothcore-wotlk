@@ -17,7 +17,7 @@ DELETE FROM `gossip_menu` WHERE `MenuID` = 4085 AND `TextID` = 4980;
 INSERT INTO `gossip_menu` (`MenuID`, `TextID`) VALUES (4085, 4980);
 
 -- Conditions on gossip_menu text: 4979 before quest, 4980 after quest
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 14 AND `SourceGroup` = 4085;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 14 AND `SourceGroup` = 4085 AND `SourceEntry` IN (4979, 4980);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (14, 4085, 4979, 0, 0, 8, 0, 6164, 0, 0, 1, 0, 0, '', 'Augustus the Touched - Show text 4979 if quest 6164 NOT rewarded'),
 (14, 4085, 4980, 0, 0, 8, 0, 6164, 0, 0, 0, 0, 0, '', 'Augustus the Touched - Show text 4980 if quest 6164 rewarded');
@@ -91,11 +91,11 @@ INSERT INTO `gossip_menu` (`MenuID`, `TextID`) VALUES
 (4781, 3673),
 (4781, 3677);
 
--- Condition: show text 3677 only if rep >= Friendly with Thorium Brotherhood (faction 59)
--- Text 3673 has no condition and serves as the default (unfriendly) text
+-- Conditions on gossip_menu text: 3673 below Friendly, 3677 at Friendly+
 -- Friendly(4)=16, Honored(5)=32, Revered(6)=64, Exalted(7)=128 => mask 240
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 14 AND `SourceGroup` = 4781;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 14 AND `SourceGroup` = 4781 AND `SourceEntry` IN (3673, 3677);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(14, 4781, 3673, 0, 0, 5, 0, 59, 240, 0, 1, 0, 0, '', 'Lokhtos Darkbargainer - Show text 3673 if Thorium Brotherhood rep < Friendly'),
 (14, 4781, 3677, 0, 0, 5, 0, 59, 240, 0, 0, 0, 0, '', 'Lokhtos Darkbargainer - Show text 3677 if Thorium Brotherhood rep >= Friendly');
 
 -- Condition on vendor option (MenuID 4781, OptionID 0): rep >= Friendly
