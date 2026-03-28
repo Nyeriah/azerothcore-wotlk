@@ -2684,10 +2684,14 @@ void Map::ProcessRespawns()
             continue;
         }
 
-        // Compat-mode creatures handle their own respawn in-place — don't interfere
+        // Compat-mode creatures handle their own respawn in-place — don't interfere.
+        // Clean up the stale respawn time entry since the legacy system manages these.
         SpawnGroupTemplateData const* groupData = sObjectMgr->GetSpawnGroupData(data->spawnGroupId);
         if (!groupData || (groupData->flags & SPAWNGROUP_FLAG_COMPATIBILITY_MODE))
+        {
+            RemoveCreatureRespawnTime(spawnId);
             continue;
+        }
 
         // Don't respawn if the spawn group is not active
         if (!IsSpawnGroupActive(data->spawnGroupId))
@@ -2735,10 +2739,14 @@ void Map::ProcessRespawns()
             continue;
         }
 
-        // Compat-mode gameobjects handle their own respawn — don't interfere
+        // Compat-mode gameobjects handle their own respawn — don't interfere.
+        // Clean up the stale respawn time entry since the legacy system manages these.
         SpawnGroupTemplateData const* groupData = sObjectMgr->GetSpawnGroupData(data->spawnGroupId);
         if (!groupData || (groupData->flags & SPAWNGROUP_FLAG_COMPATIBILITY_MODE))
+        {
+            RemoveGORespawnTime(spawnId);
             continue;
+        }
 
         if (!IsSpawnGroupActive(data->spawnGroupId))
             continue;
