@@ -47,13 +47,7 @@ enum Misc
 struct boss_rage_winterchill : public BossAI
 {
 public:
-    boss_rage_winterchill(Creature* creature) : BossAI(creature, DATA_WINTERCHILL)
-    {
-        scheduler.SetValidator([this]
-        {
-            return !me->HasUnitState(UNIT_STATE_CASTING);
-        });
-    }
+    boss_rage_winterchill(Creature* creature) : BossAI(creature, DATA_WINTERCHILL) { }
 
     void JustEngagedWith(Unit* who) override
     {

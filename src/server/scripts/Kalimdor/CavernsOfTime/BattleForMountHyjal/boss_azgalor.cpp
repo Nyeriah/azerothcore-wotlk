@@ -44,13 +44,7 @@ enum Texts
 struct boss_azgalor : public BossAI
 {
 public:
-    boss_azgalor(Creature* creature) : BossAI(creature, DATA_AZGALOR)
-    {
-        scheduler.SetValidator([this]
-            {
-                return !me->HasUnitState(UNIT_STATE_CASTING);
-            });
-    }
+    boss_azgalor(Creature* creature) : BossAI(creature, DATA_AZGALOR) { }
 
     void JustEngagedWith(Unit * who) override
     {
