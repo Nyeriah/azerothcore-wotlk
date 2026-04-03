@@ -2156,13 +2156,27 @@ void Creature::ForcedDespawn(Milliseconds timeMSToDespawn, Seconds forceRespawnT
         return;
     }
 
+    // Override respawn delay BEFORE setDeathState, because setDeathState(JustDied)
+    // computes m_respawnTime = now + m_respawnDelay + m_corpseDelay and immediately
+    // saves it to DB for bosses/elites. We must have the correct delay in place
+    // before that happens.
+    if (forceRespawnTimer > 0s)
+        m_respawnDelay = forceRespawnTimer.count();
+
     if (IsAlive())
         setDeathState(DeathState::JustDied, true);
 
     // Xinef: Set new respawn time, ignore corpse decay time...
+    // After setDeathState, m_respawnTime includes m_corpseDelay which we don't
+    // want for a forced respawn. Override it so RemoveCorpse's max() picks ours.
+    if (forceRespawnTimer > 0s)
+        m_respawnTime = GameTime::GetGameTime().count() + forceRespawnTimer.count();
+
     RemoveCorpse(true);
 
-    if (forceRespawnTimer > 0s)
+    // In compat mode the creature stays in the world as a dead body and needs
+    // an event-based kick to call Respawn() after the timer expires.
+    if (forceRespawnTimer > 0s && _respawnCompatibilityMode)
         if (GetMap())
             GetMap()->ScheduleCreatureRespawn(GetGUID(), forceRespawnTimer);
 }
