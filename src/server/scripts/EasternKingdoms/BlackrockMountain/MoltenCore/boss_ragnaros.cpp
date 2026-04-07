@@ -19,6 +19,7 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellScriptLoader.h"
+#include "ThreatManager.h"
 #include "molten_core.h"
 
 enum Texts
@@ -80,6 +81,7 @@ enum Events
     EVENT_MIGHT_OF_RAGNAROS,
     EVENT_LAVA_BURST,
     EVENT_MAGMA_BLAST,
+    EVENT_MELEE_SCAN,
     EVENT_SUBMERGE,
     EVENT_LAVA_BURST_TRIGGER,
 
@@ -218,29 +220,6 @@ struct boss_ragnaros : public BossAI
             DoStartNoMovement(target);
     }
 
-    void EnterEvadeMode(EvadeReason why) override
-    {
-        if (!me->GetThreatMgr().IsThreatListEmpty())
-        {
-            if (!_processingMagmaBurst)
-            {
-                // Boss try to evade, but still got some targets on threat list - it means that none of these targets are in melee range - cast magma blast
-                _processingMagmaBurst = true;
-                events.ScheduleEvent(EVENT_MAGMA_BLAST, 4s, PHASE_EMERGED, PHASE_EMERGED);
-            }
-        }
-        else
-        {
-            BossAI::EnterEvadeMode(why);
-        }
-    }
-
-    bool CanAIAttack(Unit const* victim) const override
-    {
-        // Used for Magma Blast handling to force EnterEvadeMode if there are no melee targets
-        return me->IsWithinMeleeRange(victim);
-    }
-
     void UpdateAI(uint32 diff) override
     {
         if (!extraEvents.Empty())
@@ -307,10 +286,7 @@ struct boss_ragnaros : public BossAI
         }
 
         if (!UpdateVictim())
-        {
-            if (!_processingMagmaBurst)
-                return;
-        }
+            return;
 
         events.Update(diff);
 
@@ -348,19 +324,57 @@ struct boss_ragnaros : public BossAI
                     DoCastAOE(SPELL_LAVA_BURST);
                     break;
                 }
+                case EVENT_MELEE_SCAN:
+                {
+                    if (!IsVictimWithinMeleeRange())
+                    {
+                        if (Unit* meleeTarget = SelectMeleeThreatTarget())
+                        {
+                            if (meleeTarget != me->GetVictim())
+                                AttackStart(meleeTarget);
+                            if (_processingMagmaBurst)
+                            {
+                                events.CancelEvent(EVENT_MAGMA_BLAST);
+                                _processingMagmaBurst = false;
+                            }
+                        }
+                        else if (!_processingMagmaBurst)
+                        {
+                            _processingMagmaBurst = true;
+                            events.ScheduleEvent(EVENT_MAGMA_BLAST, 4s, PHASE_EMERGED, PHASE_EMERGED);
+                        }
+                    }
+                    else if (_processingMagmaBurst)
+                    {
+                        events.CancelEvent(EVENT_MAGMA_BLAST);
+                        _processingMagmaBurst = false;
+                    }
+                    events.Repeat(500ms);
+                    break;
+                }
                 case EVENT_MAGMA_BLAST:
                 {
                     _processingMagmaBurst = false;
 
-                    if (!IsVictimWithinMeleeRange())
+                    if (Unit* meleeTarget = SelectMeleeThreatTarget())
                     {
-                        DoCastRandomTarget(SPELL_MAGMA_BLAST);
+                        if (meleeTarget != me->GetVictim())
+                            AttackStart(meleeTarget);
+                        break;
+                    }
+
+                    if (Unit* victim = me->GetVictim())
+                    {
+                        DoCast(victim, SPELL_MAGMA_BLAST);
 
                         if (!_hasYelledMagmaBurst)
                         {
                             Talk(SAY_MAGMABURST);
                             _hasYelledMagmaBurst = true;
                         }
+
+                        _processingMagmaBurst = true;
+                        events.ScheduleEvent(EVENT_MAGMA_BLAST, 4s, PHASE_EMERGED, PHASE_EMERGED);
                     }
 
                     break;
@@ -454,11 +468,26 @@ private:
         events.RescheduleEvent(EVENT_LAVA_BURST, 10s, PHASE_EMERGED, PHASE_EMERGED);
         events.RescheduleEvent(EVENT_SUBMERGE, 180s, PHASE_EMERGED, PHASE_EMERGED);
         events.RescheduleEvent(EVENT_MIGHT_OF_RAGNAROS, 11s, PHASE_EMERGED, PHASE_EMERGED);
+        events.RescheduleEvent(EVENT_MELEE_SCAN, 500ms, PHASE_EMERGED, PHASE_EMERGED);
     }
 
     bool IsVictimWithinMeleeRange() const
     {
         return me->GetVictim() && me->IsWithinMeleeRange(me->GetVictim());
+    }
+
+    Unit* SelectMeleeThreatTarget() const
+    {
+        for (ThreatReference const* ref : me->GetThreatMgr().GetSortedThreatList())
+        {
+            if (!ref->IsAvailable())
+                continue;
+
+            Unit* target = ref->GetVictim();
+            if (target && me->IsWithinMeleeRange(target))
+                return target;
+        }
+        return nullptr;
     }
 };
 
