@@ -19,7 +19,6 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellScriptLoader.h"
-#include "ThreatManager.h"
 #include "molten_core.h"
 
 enum Texts
@@ -326,19 +325,13 @@ struct boss_ragnaros : public BossAI
                 }
                 case EVENT_MELEE_SCAN:
                 {
+                    // ReselectVictim() in the threat system already prefers
+                    // in-melee-range targets, so if the current victim is out
+                    // of melee range it means *nobody* is in range. Use that
+                    // as the trigger for the Magma Blast fallback.
                     if (!IsVictimWithinMeleeRange())
                     {
-                        if (Unit* meleeTarget = SelectMeleeThreatTarget())
-                        {
-                            if (meleeTarget != me->GetVictim())
-                                AttackStart(meleeTarget);
-                            if (_processingMagmaBurst)
-                            {
-                                events.CancelEvent(EVENT_MAGMA_BLAST);
-                                _processingMagmaBurst = false;
-                            }
-                        }
-                        else if (!_processingMagmaBurst)
+                        if (!_processingMagmaBurst)
                         {
                             _processingMagmaBurst = true;
                             events.ScheduleEvent(EVENT_MAGMA_BLAST, 4s, PHASE_EMERGED, PHASE_EMERGED);
@@ -356,12 +349,8 @@ struct boss_ragnaros : public BossAI
                 {
                     _processingMagmaBurst = false;
 
-                    if (Unit* meleeTarget = SelectMeleeThreatTarget())
-                    {
-                        if (meleeTarget != me->GetVictim())
-                            AttackStart(meleeTarget);
+                    if (IsVictimWithinMeleeRange())
                         break;
-                    }
 
                     if (Unit* victim = me->GetVictim())
                     {
@@ -476,19 +465,6 @@ private:
         return me->GetVictim() && me->IsWithinMeleeRange(me->GetVictim());
     }
 
-    Unit* SelectMeleeThreatTarget() const
-    {
-        for (ThreatReference const* ref : me->GetThreatMgr().GetSortedThreatList())
-        {
-            if (!ref->IsAvailable())
-                continue;
-
-            Unit* target = ref->GetVictim();
-            if (target && me->IsWithinMeleeRange(target))
-                return target;
-        }
-        return nullptr;
-    }
 };
 
 constexpr std::array<uint32, 8> RagnarosLavaBurstSpells = { SPELL_LAVA_BURST_A, SPELL_LAVA_BURST_B, SPELL_LAVA_BURST_C, SPELL_LAVA_BURST_D, SPELL_LAVA_BURST_E, SPELL_LAVA_BURST_F, SPELL_LAVA_BURST_G, SPELL_LAVA_BURST_H };
