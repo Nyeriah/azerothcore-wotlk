@@ -219,6 +219,12 @@ struct boss_ragnaros : public BossAI
             DoStartNoMovement(target);
     }
 
+    void EnterEvadeMode(EvadeReason why) override
+    {
+        if (me->GetThreatMgr().IsThreatListEmpty())
+            BossAI::EnterEvadeMode(why);
+    }
+
     void UpdateAI(uint32 diff) override
     {
         if (!extraEvents.Empty())
