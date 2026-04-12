@@ -282,7 +282,6 @@ public:
 
         void Reset() override
         {
-            SetInvincibility(true);
             me->CastSpell(me, SPELL_ELEMENTAL_SPAWN_EFFECT, false);
         }
 
