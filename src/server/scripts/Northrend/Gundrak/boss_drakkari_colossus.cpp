@@ -56,9 +56,7 @@ enum Misc
 
     EVENT_COLOSSUS_MIGHTY_BLOW          = 1,
     EVENT_COLOSSUS_MORTAL_STRIKE        = 2,
-    EVENT_COLOSSUS_HEALTH_1             = 3,
-    EVENT_COLOSSUS_HEALTH_2             = 4,
-    EVENT_COLOSSUS_START_FIGHT          = 5,
+    EVENT_COLOSSUS_START_FIGHT          = 3,
 
     EVENT_ELEMENTAL_HEALTH              = 10,
     EVENT_ELEMENTAL_SURGE               = 11,
@@ -108,6 +106,8 @@ public:
         {
         }
 
+        bool _secondEmerge;
+
         void MoveInLineOfSight(Unit*  /*who*/) override
         {
         }
@@ -139,6 +139,7 @@ public:
             }
 
             SetInvincibility(true);
+            _secondEmerge = false;
         }
 
         void JustReachedHome() override
@@ -152,8 +153,21 @@ public:
             events.ScheduleEvent(EVENT_COLOSSUS_START_FIGHT, 1s);
             events.ScheduleEvent(EVENT_COLOSSUS_MIGHTY_BLOW, 10s);
             events.ScheduleEvent(EVENT_COLOSSUS_MORTAL_STRIKE, 7s);
-            events.ScheduleEvent(EVENT_COLOSSUS_HEALTH_1, 1s);
-            events.ScheduleEvent(EVENT_COLOSSUS_HEALTH_2, 1s);
+
+            ScheduleHealthCheckEvent(51, [&] {
+                me->CastSpell(me, SPELL_EMERGE, false);
+                me->CastSpell(me, SPELL_EMERGE_SUMMON, true);
+                me->SetUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->GetMotionMaster()->Clear();
+            });
+
+            ScheduleHealthCheckEvent(2, [&] {
+                _secondEmerge = true;
+                me->CastSpell(me, SPELL_EMERGE, false);
+                me->CastSpell(me, SPELL_EMERGE_SUMMON, true);
+                me->SetUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->GetMotionMaster()->Clear();
+            });
         }
 
         void JustSummoned(Creature* summon) override
@@ -163,7 +177,7 @@ public:
                 summon->SetRegeneratingHealth(false);
                 summon->SetReactState(REACT_PASSIVE);
                 summon->m_Events.AddEventAtOffset(new RestoreFight(summon), 3s);
-                if (!events.HasTimeUntilEvent(EVENT_COLOSSUS_HEALTH_2))
+                if (_secondEmerge)
                 {
                     summon->SetHealth(summon->GetMaxHealth() / 2);
                     summon->LowerPlayerDamageReq(summon->GetMaxHealth() / 2);
@@ -178,10 +192,7 @@ public:
         {
             summons.Despawn(summon);
             if (summon->GetEntry() == NPC_DRAKKARI_ELEMENTAL)
-            {
-                SetInvincibility(false);
                 me->KillSelf();
-            }
         }
 
         void SummonedCreatureDespawn(Creature* summon) override
@@ -189,7 +200,6 @@ public:
             summons.Despawn(summon);
             if (summon->GetEntry() == NPC_DRAKKARI_ELEMENTAL)
             {
-                SetInvincibility(false);
                 me->SetHealth(me->GetMaxHealth() / 2);
                 me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveAurasDueToSpell(SPELL_FREEZE_ANIM);
@@ -220,28 +230,6 @@ public:
                 case EVENT_COLOSSUS_MORTAL_STRIKE:
                     DoCastVictim(SPELL_MORTAL_STRIKE);
                     events.ScheduleEvent(EVENT_COLOSSUS_MORTAL_STRIKE, 7s);
-                    break;
-                case EVENT_COLOSSUS_HEALTH_1:
-                    if (me->HealthBelowPct(51))
-                    {
-                        me->CastSpell(me, SPELL_EMERGE, false);
-                        me->CastSpell(me, SPELL_EMERGE_SUMMON, true);
-                        me->SetUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
-                        me->GetMotionMaster()->Clear();
-                        break;
-                    }
-                    events.ScheduleEvent(EVENT_COLOSSUS_HEALTH_1, 1s);
-                    break;
-                case EVENT_COLOSSUS_HEALTH_2:
-                    if (me->HealthBelowPct(2))
-                    {
-                        me->CastSpell(me, SPELL_EMERGE, false);
-                        me->CastSpell(me, SPELL_EMERGE_SUMMON, true);
-                        me->SetUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
-                        me->GetMotionMaster()->Clear();
-                        break;
-                    }
-                    events.ScheduleEvent(EVENT_COLOSSUS_HEALTH_2, 1s);
                     break;
             }
 
@@ -274,10 +262,7 @@ public:
         void DoAction(int32 param) override
         {
             if (param == ACTION_INFORM)
-            {
                 events.CancelEvent(EVENT_ELEMENTAL_HEALTH);
-                SetInvincibility(false);
-            }
         }
 
         void Reset() override
