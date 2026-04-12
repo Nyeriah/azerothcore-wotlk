@@ -137,6 +137,8 @@ public:
                 me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                 me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
             }
+
+            SetInvincibility(true);
         }
 
         void JustReachedHome() override
@@ -176,7 +178,10 @@ public:
         {
             summons.Despawn(summon);
             if (summon->GetEntry() == NPC_DRAKKARI_ELEMENTAL)
+            {
+                SetInvincibility(false);
                 me->KillSelf();
+            }
         }
 
         void SummonedCreatureDespawn(Creature* summon) override
@@ -184,18 +189,13 @@ public:
             summons.Despawn(summon);
             if (summon->GetEntry() == NPC_DRAKKARI_ELEMENTAL)
             {
+                SetInvincibility(false);
                 me->SetHealth(me->GetMaxHealth() / 2);
                 me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveAurasDueToSpell(SPELL_FREEZE_ANIM);
                 if (me->GetVictim())
                     me->GetMotionMaster()->MoveChase(me->GetVictim());
             }
-        }
-
-        void DamageTaken(Unit*  /*attacker*/, uint32& damage, DamageEffectType, SpellSchoolMask) override
-        {
-            if (damage >= me->GetHealth())
-                damage = 0;
         }
 
         void UpdateAI(uint32 diff) override
@@ -274,11 +274,15 @@ public:
         void DoAction(int32 param) override
         {
             if (param == ACTION_INFORM)
+            {
                 events.CancelEvent(EVENT_ELEMENTAL_HEALTH);
+                SetInvincibility(false);
+            }
         }
 
         void Reset() override
         {
+            SetInvincibility(true);
             me->CastSpell(me, SPELL_ELEMENTAL_SPAWN_EFFECT, false);
         }
 
