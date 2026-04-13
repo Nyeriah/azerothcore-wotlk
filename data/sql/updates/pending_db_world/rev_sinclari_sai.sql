@@ -10,7 +10,7 @@ INSERT INTO `gossip_menu` (`MenuID`, `TextID`) VALUES
 
 DELETE FROM `gossip_menu_option` WHERE `MenuID` = 9997 AND `OptionID` = 1;
 INSERT INTO `gossip_menu_option` (`MenuID`, `OptionID`, `OptionIcon`, `OptionText`, `OptionBroadcastTextID`, `OptionType`, `OptionNpcFlag`, `ActionMenuID`, `ActionPoiID`, `BoxCoded`, `BoxMoney`, `BoxText`, `BoxBroadcastTextID`, `VerifiedBuild`)
-VALUES (9997, 1, 0, "I'm not fighting, so send me in now!", 33204, 1, 1, 0, 0, 0, 0, '', 0, 0);
+VALUES (9997, 1, 0, 'I''m not fighting, so send me in now!', 33204, 1, 1, 0, 0, 0, 0, '', 0, 0);
 
 -- Gossip menu text conditions (CONDITION_INSTANCE_INFO on DATA_ENCOUNTER_STATUS)
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 14 AND `SourceGroup` = 9997;
