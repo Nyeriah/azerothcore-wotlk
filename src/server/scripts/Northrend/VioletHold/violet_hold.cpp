@@ -53,7 +53,7 @@ public:
     {
         if (InstanceScript* Instance = go->GetInstanceScript())
         {
-            Instance->SetData(DATA_ACTIVATE_DEFENSE_SYSTEM, 1);
+            Instance->DoAction(ACTION_ACTIVATE_DEFENSE_SYSTEM);
             go->SetGameObjectFlag(GO_FLAG_NOT_SELECTABLE);
         }
 
@@ -102,7 +102,7 @@ public:
             case GOSSIP_ACTION_INFO_DEF+2:
                 CloseGossipMenuFor(player);
                 if (InstanceScript* Instance = creature->GetInstanceScript())
-                    Instance->SetData(DATA_START_INSTANCE, 1);
+                    Instance->DoAction(ACTION_START_INSTANCE);
                 break;
             case GOSSIP_ACTION_INFO_DEF+3:
                 player->NearTeleportTo(playerTeleportPosition.GetPositionX(), playerTeleportPosition.GetPositionY(), playerTeleportPosition.GetPositionZ(), playerTeleportPosition.GetOrientation(), true);
@@ -213,7 +213,7 @@ struct npc_vh_teleportation_portal : public NullCreatureAI
         _events.Reset();
         if (_wave % 6 == 0)
             return;
-        _instance->SetData(DATA_PORTAL_DEFEATED, 0);
+        _instance->DoAction(ACTION_PORTAL_DEFEATED);
     }
 
     void JustSummoned(Creature* summoned) override
@@ -1012,7 +1012,7 @@ struct npc_azure_saboteur : public npc_escortAI
                         _events.RescheduleEvent(EVENT_SABOTEUR_SHIELD_DISRUPTION, 1s);
                     else
                     {
-                        _instance->SetData(DATA_RELEASE_BOSS, 0);
+                        _instance->DoAction(ACTION_RELEASE_BOSS);
                         _events.RescheduleEvent(EVENT_SABOTEUR_DISAPPEAR, 500ms);
                     }
                     break;
@@ -1059,7 +1059,7 @@ class spell_destroy_door_seal_aura : public AuraScript
         PreventDefaultAction();
         if (Unit* target = GetTarget())
             if (InstanceScript* Instance = target->GetInstanceScript())
-                Instance->SetData(DATA_DECREASE_DOOR_HEALTH, 0);
+                Instance->DoAction(ACTION_DECREASE_DOOR_HEALTH);
     }
 
     void Register() override
