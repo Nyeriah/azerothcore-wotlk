@@ -168,7 +168,6 @@ enum VHInstanceEvents
 
     // Event defense system
     EVENT_ARCANE_LIGHTNING,
-    EVENT_ARCANE_LIGHTNING_INSTAKILL,
 
     // Spell event (SPELL_EFFECT_SEND_EVENT from spell 57804)
     EVENT_ACTIVATE_CRYSTAL              = 20001,

@@ -982,13 +982,16 @@ class spell_destroy_door_seal_aura : public AuraScript
 
 struct npc_violet_hold_defense_system : public ScriptedAI
 {
-    npc_violet_hold_defense_system(Creature* creature) : ScriptedAI(creature) { }
+    npc_violet_hold_defense_system(Creature* creature) : ScriptedAI(creature)
+    {
+        _tickCount = 0;
+    }
 
     void Reset() override
     {
+        _tickCount = 0;
         DoCast(RAND(SPELL_DEFENSE_SYSTEM_SPAWN_EFFECT, SPELL_DEFENSE_SYSTEM_VISUAL));
         events.ScheduleEvent(EVENT_ARCANE_LIGHTNING, 4s);
-        events.ScheduleEvent(EVENT_ARCANE_LIGHTNING_INSTAKILL, 4s);
         me->DespawnOrUnsummon(7s, 0s);
     }
 
@@ -996,18 +999,20 @@ struct npc_violet_hold_defense_system : public ScriptedAI
     {
         events.Update(diff);
 
-        switch (events.ExecuteEvent())
+        if (events.ExecuteEvent() == EVENT_ARCANE_LIGHTNING)
         {
-            case EVENT_ARCANE_LIGHTNING:
-                DoCastAOE(RAND(SPELL_ARCANE_LIGHTNING, SPELL_ARCANE_LIGHTNING_VISUAL));
-                events.Repeat(2s);
-                break;
-            case EVENT_ARCANE_LIGHTNING_INSTAKILL:
+            DoCastAOE(SPELL_ARCANE_LIGHTNING);
+            DoCastAOE(SPELL_ARCANE_LIGHTNING_VISUAL);
+
+            if (++_tickCount >= 3)
                 DoCastAOE(SPELL_ARCANE_LIGHTNING_INSTAKILL);
+            else
                 events.Repeat(1s);
-                break;
         }
     }
+
+private:
+    uint8 _tickCount;
 };
 
 void AddSC_violet_hold()
