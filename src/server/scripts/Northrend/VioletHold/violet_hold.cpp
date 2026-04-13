@@ -17,101 +17,13 @@
 
 #include "violet_hold.h"
 #include "CreatureScript.h"
-#include "GameObjectScript.h"
 #include "PassiveAI.h"
-#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
-#include "ScriptedGossip.h"
 #include "SpellScript.h"
 #include "SpellScriptLoader.h"
 
 /// @todo: Missing Sinclari Trigger announcements (32204) Look at its creature_text for more info.
-
-enum Texts
-{
-    GOSSIP_MENU_START_1         = 9997,
-    GOSSIP_MENU_START_2         = 9998,
-    GOSSIP_MENU_LATE_JOIN       = 10275,
-
-    NPC_TEXT_SINCLARI_IN        = 13853,
-    NPC_TEXT_SINCLARI_START     = 13854,
-    NPC_TEXT_SINCLARI_DONE      = 13910,
-    NPC_TEXT_SINCLARI_LATE_JOIN = 14271,
-};
-
-/***********
-** DEFENSE SYSTEM CRYSTAL
-***********/
-
-class go_vh_activation_crystal : public GameObjectScript
-{
-public:
-    go_vh_activation_crystal() : GameObjectScript("go_vh_activation_crystal") { }
-
-    bool OnGossipHello(Player*  /*player*/, GameObject* go) override
-    {
-        if (InstanceScript* Instance = go->GetInstanceScript())
-        {
-            Instance->DoAction(ACTION_ACTIVATE_DEFENSE_SYSTEM);
-            go->SetGameObjectFlag(GO_FLAG_NOT_SELECTABLE);
-        }
-
-        return true;
-    }
-};
-
-/***********
-** SINCLARI
-***********/
-
-class npc_vh_sinclari : public CreatureScript
-{
-public:
-    npc_vh_sinclari() : CreatureScript("npc_vh_sinclari") { }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (InstanceScript* Instance = creature->GetInstanceScript())
-            switch (Instance->GetData(DATA_ENCOUNTER_STATUS))
-            {
-                case NOT_STARTED:
-                    AddGossipItemFor(player, GOSSIP_MENU_START_1, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                    SendGossipMenuFor(player, NPC_TEXT_SINCLARI_IN, creature->GetGUID());
-                    break;
-                case IN_PROGRESS:
-                    AddGossipItemFor(player, GOSSIP_MENU_LATE_JOIN, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                    SendGossipMenuFor(player, NPC_TEXT_SINCLARI_LATE_JOIN, creature->GetGUID());
-                    break;
-                default:
-                    SendGossipMenuFor(player, NPC_TEXT_SINCLARI_DONE, creature->GetGUID());
-            }
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        ClearGossipMenuFor(player);
-
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF+1:
-                AddGossipItemFor(player, GOSSIP_MENU_START_2, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                SendGossipMenuFor(player, NPC_TEXT_SINCLARI_START, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+2:
-                CloseGossipMenuFor(player);
-                if (InstanceScript* Instance = creature->GetInstanceScript())
-                    Instance->DoAction(ACTION_START_INSTANCE);
-                break;
-            case GOSSIP_ACTION_INFO_DEF+3:
-                player->NearTeleportTo(playerTeleportPosition.GetPositionX(), playerTeleportPosition.GetPositionY(), playerTeleportPosition.GetPositionZ(), playerTeleportPosition.GetOrientation(), true);
-                CloseGossipMenuFor(player);
-                break;
-        }
-        return true;
-    }
-};
 
 /***********
 ** TELEPORTATION PORTAL
@@ -1100,9 +1012,6 @@ struct npc_violet_hold_defense_system : public ScriptedAI
 
 void AddSC_violet_hold()
 {
-    new go_vh_activation_crystal();
-    new npc_vh_sinclari();
-
     RegisterVioletHoldCreatureAI(npc_vh_teleportation_portal);
     RegisterVioletHoldCreatureAI(npc_azure_saboteur);
 

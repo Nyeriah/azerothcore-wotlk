@@ -189,14 +189,19 @@ public:
             return true;
         }
 
+        void ProcessEvent(WorldObject* /*obj*/, uint32 eventId) override
+        {
+            if (eventId == EVENT_ACTIVATE_CRYSTAL)
+            {
+                _defensesUsed = true;
+                SummonDefenseSystem();
+            }
+        }
+
         void DoAction(int32 action) override
         {
             switch (action)
             {
-                case ACTION_ACTIVATE_DEFENSE_SYSTEM:
-                    _defensesUsed = true;
-                    SummonDefenseSystem();
-                    break;
                 case ACTION_START_INSTANCE:
                     if (_encounterStatus == NOT_STARTED)
                     {
@@ -380,7 +385,7 @@ public:
                     if (Creature* sinclari = GetCreature(DATA_SINCLARI))
                     {
                         sinclari->AI()->Talk(SAY_SINCLARI_DOOR_LOCK);
-                        sinclari->SetVisible(false);
+                        sinclari->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                     }
                     if (Creature* doorSeal = GetCreature(DATA_DOOR_SEAL))
                         doorSeal->RemoveAllAuras();
