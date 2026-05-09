@@ -1,5 +1,5 @@
 --
--- Strings for `respawn id` command and updated `list respawns` command
+-- Strings for `respawn guid` command and updated `list respawns` command
 --
 DELETE FROM `acore_string` WHERE `entry` IN (35441, 35442, 35443, 35444, 35445, 35446, 35447);
 INSERT INTO `acore_string` (`entry`, `content_default`, `locale_koKR`, `locale_frFR`, `locale_deDE`, `locale_zhCN`, `locale_zhTW`, `locale_esES`, `locale_esMX`, `locale_ruRU`) VALUES
@@ -19,8 +19,8 @@ INSERT INTO `command` (`name`, `security`, `help`) VALUES
 ('list respawns', 2, 'Syntax: .list respawns [entryId]\r\nIn-game: shows all pending creature and gameobject respawns on the current map, filtered by entryId if provided.\r\nConsole: .list respawns #mapId [#instanceId [#entryId]] - specify map and optional instance ID and entry filter.');
 
 --
--- Register `respawn id` command
+-- Register `respawn guid` command
 --
-DELETE FROM `command` WHERE `name` = 'respawn id';
+DELETE FROM `command` WHERE `name` IN ('respawn id', 'respawn guid');
 INSERT INTO `command` (`name`, `security`, `help`) VALUES
-('respawn id', 3, 'Syntax: .respawn id #spawnId\r\nForces a creature or gameobject with the given spawn ID (database GUID) to respawn. Usable from console.');
+('respawn guid', 3, 'Syntax: .respawn guid #spawnGuid\r\nForces a creature or gameobject with the given spawn GUID (database GUID) to respawn. Usable from console.');

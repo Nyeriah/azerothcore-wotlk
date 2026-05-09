@@ -677,7 +677,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_BF_QUEUE                              = 913,
     RBAC_PERM_COMMAND_PET_LIST                               = 914,
     RBAC_PERM_COMMAND_PET_DELETE                             = 915,
-    RBAC_PERM_COMMAND_RESPAWN_ID                             = 916,
+    RBAC_PERM_COMMAND_RESPAWN_GUID                           = 916,
     // custom permissions 1000+
     RBAC_PERM_MAX
 };

@@ -178,7 +178,7 @@ public:
             { "pinfo",             HandlePInfoCommand,             rbac::RBAC_PERM_COMMAND_PINFO,             Console::Yes },
             { "respawn",           HandleRespawnCommand,           rbac::RBAC_PERM_COMMAND_RESPAWN,           Console::No  },
             { "respawn all",       HandleRespawnAllCommand,        rbac::RBAC_PERM_COMMAND_RESPAWN_ALL,       Console::No  },
-            { "respawn id",        HandleRespawnByIdCommand,       rbac::RBAC_PERM_COMMAND_RESPAWN_ID,        Console::Yes },
+            { "respawn guid",      HandleRespawnByGuidCommand,     rbac::RBAC_PERM_COMMAND_RESPAWN_GUID,      Console::Yes },
             { "mute",              HandleMuteCommand,              rbac::RBAC_PERM_COMMAND_MUTE,              Console::Yes },
             { "mutehistory",       HandleMuteInfoCommand,          rbac::RBAC_PERM_COMMAND_MUTEHISTORY,       Console::Yes },
             { "unmute",            HandleUnmuteCommand,            rbac::RBAC_PERM_COMMAND_UNMUTE,            Console::Yes },
@@ -2450,7 +2450,7 @@ public:
         return true;
     }
 
-    static bool HandleRespawnByIdCommand(ChatHandler* handler, ObjectGuid::LowType spawnId)
+    static bool HandleRespawnByGuidCommand(ChatHandler* handler, ObjectGuid::LowType spawnId)
     {
         bool foundAny = false;
         time_t now = GameTime::GetGameTime().count();
@@ -2471,7 +2471,7 @@ public:
 
             if (!map)
             {
-                handler->PSendSysMessage(LANG_RESPAWN_ID_MAP_NOT_LOADED, creData->mapid);
+                handler->PSendSysMessage(LANG_RESPAWN_GUID_MAP_NOT_LOADED, creData->mapid);
             }
             else
             {
@@ -2489,7 +2489,7 @@ public:
 
                 if (isAlive)
                 {
-                    handler->PSendSysMessage(LANG_RESPAWN_ID_CREATURE_ALIVE, spawnId, creData->id1);
+                    handler->PSendSysMessage(LANG_RESPAWN_GUID_CREATURE_ALIVE, spawnId, creData->id1);
                 }
                 else
                 {
@@ -2502,7 +2502,7 @@ public:
                     // Also trigger via respawn time queue for fully-removed spawns
                     if (map->GetCreatureRespawnTime(spawnId) > 0)
                         map->SaveCreatureRespawnTime(spawnId, now);
-                    handler->PSendSysMessage(LANG_RESPAWN_ID_CREATURE_QUEUED, spawnId, creData->id1);
+                    handler->PSendSysMessage(LANG_RESPAWN_GUID_CREATURE_QUEUED, spawnId, creData->id1);
                 }
             }
         }
@@ -2523,7 +2523,7 @@ public:
 
             if (!map)
             {
-                handler->PSendSysMessage(LANG_RESPAWN_ID_MAP_NOT_LOADED, goData->mapid);
+                handler->PSendSysMessage(LANG_RESPAWN_GUID_MAP_NOT_LOADED, goData->mapid);
             }
             else
             {
@@ -2541,7 +2541,7 @@ public:
 
                 if (isActive)
                 {
-                    handler->PSendSysMessage(LANG_RESPAWN_ID_GAMEOBJECT_ACTIVE, spawnId, goData->id);
+                    handler->PSendSysMessage(LANG_RESPAWN_GUID_GAMEOBJECT_ACTIVE, spawnId, goData->id);
                 }
                 else
                 {
@@ -2551,14 +2551,14 @@ public:
                     // Also trigger via respawn time queue for fully-removed spawns
                     if (map->GetGORespawnTime(spawnId) > 0)
                         map->SaveGORespawnTime(spawnId, now);
-                    handler->PSendSysMessage(LANG_RESPAWN_ID_GAMEOBJECT_QUEUED, spawnId, goData->id);
+                    handler->PSendSysMessage(LANG_RESPAWN_GUID_GAMEOBJECT_QUEUED, spawnId, goData->id);
                 }
             }
         }
 
         if (!foundAny)
         {
-            handler->SendErrorMessage(LANG_RESPAWN_ID_NOT_FOUND, spawnId);
+            handler->SendErrorMessage(LANG_RESPAWN_GUID_NOT_FOUND, spawnId);
             return false;
         }
 

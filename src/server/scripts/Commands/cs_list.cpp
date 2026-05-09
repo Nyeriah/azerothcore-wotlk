@@ -546,7 +546,7 @@ public:
 
         if (!map)
         {
-            handler->PSendSysMessage(LANG_RESPAWN_ID_MAP_NOT_LOADED, firstArg.value_or(0));
+            handler->PSendSysMessage(LANG_RESPAWN_GUID_MAP_NOT_LOADED, firstArg.value_or(0));
             return false;
         }
 
