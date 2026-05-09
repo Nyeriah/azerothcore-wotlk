@@ -1498,7 +1498,7 @@ enum AcoreStrings
     LANG_RESPAWN_GUID_CREATURE_QUEUED       = 35444,
     LANG_RESPAWN_GUID_GAMEOBJECT_ACTIVE     = 35445,
     LANG_RESPAWN_GUID_GAMEOBJECT_QUEUED     = 35446,
-    // 35447 is reserved for LANG_LIST_RESPAWNS_NO_MAP (list respawns command, defined below)
+    // 35447 is reserved for LANG_LIST_RESPAWNS_NO_MAP (list respawns command, defined at the end of this enum)
     LANG_RESPAWN_GUID_GAMEOBJECT_NOT_FOUND  = 35448,
 
     // Respawn creature/gameobject by entry commands

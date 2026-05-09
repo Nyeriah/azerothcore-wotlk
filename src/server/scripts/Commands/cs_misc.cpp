@@ -180,8 +180,8 @@ public:
             { "respawn all",       HandleRespawnAllCommand,        rbac::RBAC_PERM_COMMAND_RESPAWN_ALL,       Console::No  },
             { "respawn creature guid",    HandleRespawnCreatureByGuidCommand,    rbac::RBAC_PERM_COMMAND_RESPAWN_CREATURE_GUID,    Console::Yes },
             { "respawn gameobject guid",  HandleRespawnGameObjectByGuidCommand,  rbac::RBAC_PERM_COMMAND_RESPAWN_GAMEOBJECT_GUID,  Console::Yes },
-            { "respawn creature entry",   HandleRespawnCreatureByEntryCommand,   rbac::RBAC_PERM_COMMAND_RESPAWN_CREATURE_ENTRY,   Console::No  },
-            { "respawn gameobject entry", HandleRespawnGameObjectByEntryCommand, rbac::RBAC_PERM_COMMAND_RESPAWN_GAMEOBJECT_ENTRY, Console::No  },
+            { "respawn creature entry",   HandleRespawnCreatureByEntryCommand,   rbac::RBAC_PERM_COMMAND_RESPAWN_CREATURE_ENTRY,   Console::Yes },
+            { "respawn gameobject entry", HandleRespawnGameObjectByEntryCommand, rbac::RBAC_PERM_COMMAND_RESPAWN_GAMEOBJECT_ENTRY, Console::Yes },
             { "mute",              HandleMuteCommand,              rbac::RBAC_PERM_COMMAND_MUTE,              Console::Yes },
             { "mutehistory",       HandleMuteInfoCommand,          rbac::RBAC_PERM_COMMAND_MUTEHISTORY,       Console::Yes },
             { "unmute",            HandleUnmuteCommand,            rbac::RBAC_PERM_COMMAND_UNMUTE,            Console::Yes },
@@ -2562,7 +2562,7 @@ public:
         return true;
     }
 
-    static bool HandleRespawnCreatureByEntryCommand(ChatHandler* handler, uint32 entry)
+    static bool HandleRespawnCreatureByEntryCommand(ChatHandler* handler, uint32 entry, Optional<uint32> mapIdArg, Optional<uint32> instanceIdArg)
     {
         if (!sObjectMgr->GetCreatureTemplate(entry))
         {
@@ -2570,8 +2570,29 @@ public:
             return false;
         }
 
-        Player* player = handler->GetSession()->GetPlayer();
-        Map* map = player->GetMap();
+        Map* map = nullptr;
+        if (handler->GetSession())
+        {
+            // In-game: always use the player's current map
+            map = handler->GetSession()->GetPlayer()->GetMap();
+        }
+        else
+        {
+            // Console: mapId required, instanceId optional
+            if (!mapIdArg)
+            {
+                handler->SendSysMessage(LANG_LIST_RESPAWNS_NO_MAP);
+                return false;
+            }
+            map = sMapMgr->FindMap(*mapIdArg, instanceIdArg.value_or(0));
+        }
+
+        if (!map)
+        {
+            handler->PSendSysMessage(LANG_RESPAWN_GUID_MAP_NOT_LOADED, mapIdArg.value_or(0));
+            return false;
+        }
+
         time_t now = GameTime::GetGameTime().count();
         uint32 count = 0;
 
@@ -2613,7 +2634,7 @@ public:
         return true;
     }
 
-    static bool HandleRespawnGameObjectByEntryCommand(ChatHandler* handler, uint32 entry)
+    static bool HandleRespawnGameObjectByEntryCommand(ChatHandler* handler, uint32 entry, Optional<uint32> mapIdArg, Optional<uint32> instanceIdArg)
     {
         if (!sObjectMgr->GetGameObjectTemplate(entry))
         {
@@ -2621,8 +2642,29 @@ public:
             return false;
         }
 
-        Player* player = handler->GetSession()->GetPlayer();
-        Map* map = player->GetMap();
+        Map* map = nullptr;
+        if (handler->GetSession())
+        {
+            // In-game: always use the player's current map
+            map = handler->GetSession()->GetPlayer()->GetMap();
+        }
+        else
+        {
+            // Console: mapId required, instanceId optional
+            if (!mapIdArg)
+            {
+                handler->SendSysMessage(LANG_LIST_RESPAWNS_NO_MAP);
+                return false;
+            }
+            map = sMapMgr->FindMap(*mapIdArg, instanceIdArg.value_or(0));
+        }
+
+        if (!map)
+        {
+            handler->PSendSysMessage(LANG_RESPAWN_GUID_MAP_NOT_LOADED, mapIdArg.value_or(0));
+            return false;
+        }
+
         time_t now = GameTime::GetGameTime().count();
         uint32 count = 0;
 
