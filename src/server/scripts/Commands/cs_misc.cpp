@@ -2463,15 +2463,15 @@ public:
             if (handler->GetSession())
             {
                 Player* player = handler->GetSession()->GetPlayer();
-                if (player->GetMapId() == creData->mapId)
+                if (player->GetMapId() == creData->mapid)
                     map = player->GetMap();
             }
             if (!map)
-                map = sMapMgr->FindMap(creData->mapId, 0);
+                map = sMapMgr->FindMap(creData->mapid, 0);
 
             if (!map)
             {
-                handler->PSendSysMessage(LANG_RESPAWN_ID_MAP_NOT_LOADED, creData->mapId);
+                handler->PSendSysMessage(LANG_RESPAWN_ID_MAP_NOT_LOADED, creData->mapid);
             }
             else
             {
@@ -2515,15 +2515,15 @@ public:
             if (handler->GetSession())
             {
                 Player* player = handler->GetSession()->GetPlayer();
-                if (player->GetMapId() == goData->mapId)
+                if (player->GetMapId() == goData->mapid)
                     map = player->GetMap();
             }
             if (!map)
-                map = sMapMgr->FindMap(goData->mapId, 0);
+                map = sMapMgr->FindMap(goData->mapid, 0);
 
             if (!map)
             {
-                handler->PSendSysMessage(LANG_RESPAWN_ID_MAP_NOT_LOADED, goData->mapId);
+                handler->PSendSysMessage(LANG_RESPAWN_ID_MAP_NOT_LOADED, goData->mapid);
             }
             else
             {
