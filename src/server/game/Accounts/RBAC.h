@@ -679,6 +679,8 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_PET_DELETE                             = 915,
     RBAC_PERM_COMMAND_RESPAWN_CREATURE_GUID                  = 916,
     RBAC_PERM_COMMAND_RESPAWN_GAMEOBJECT_GUID                = 917,
+    RBAC_PERM_COMMAND_RESPAWN_CREATURE_ENTRY                 = 918,
+    RBAC_PERM_COMMAND_RESPAWN_GAMEOBJECT_ENTRY               = 919,
     // custom permissions 1000+
     RBAC_PERM_MAX
 };

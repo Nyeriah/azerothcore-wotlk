@@ -178,8 +178,10 @@ public:
             { "pinfo",             HandlePInfoCommand,             rbac::RBAC_PERM_COMMAND_PINFO,             Console::Yes },
             { "respawn",           HandleRespawnCommand,           rbac::RBAC_PERM_COMMAND_RESPAWN,           Console::No  },
             { "respawn all",       HandleRespawnAllCommand,        rbac::RBAC_PERM_COMMAND_RESPAWN_ALL,       Console::No  },
-            { "respawn creature guid", HandleRespawnCreatureByGuidCommand,  rbac::RBAC_PERM_COMMAND_RESPAWN_CREATURE_GUID,   Console::Yes },
-            { "respawn gameobject guid", HandleRespawnGameObjectByGuidCommand, rbac::RBAC_PERM_COMMAND_RESPAWN_GAMEOBJECT_GUID, Console::Yes },
+            { "respawn creature guid",    HandleRespawnCreatureByGuidCommand,    rbac::RBAC_PERM_COMMAND_RESPAWN_CREATURE_GUID,    Console::Yes },
+            { "respawn gameobject guid",  HandleRespawnGameObjectByGuidCommand,  rbac::RBAC_PERM_COMMAND_RESPAWN_GAMEOBJECT_GUID,  Console::Yes },
+            { "respawn creature entry",   HandleRespawnCreatureByEntryCommand,   rbac::RBAC_PERM_COMMAND_RESPAWN_CREATURE_ENTRY,   Console::No  },
+            { "respawn gameobject entry", HandleRespawnGameObjectByEntryCommand, rbac::RBAC_PERM_COMMAND_RESPAWN_GAMEOBJECT_ENTRY, Console::No  },
             { "mute",              HandleMuteCommand,              rbac::RBAC_PERM_COMMAND_MUTE,              Console::Yes },
             { "mutehistory",       HandleMuteInfoCommand,          rbac::RBAC_PERM_COMMAND_MUTEHISTORY,       Console::Yes },
             { "unmute",            HandleUnmuteCommand,            rbac::RBAC_PERM_COMMAND_UNMUTE,            Console::Yes },
@@ -2557,6 +2559,108 @@ public:
         if (map->GetGORespawnTime(spawnId) > 0)
             map->SaveGORespawnTime(spawnId, GameTime::GetGameTime().count());
         handler->PSendSysMessage(LANG_RESPAWN_GUID_GAMEOBJECT_QUEUED, spawnId, goData->id);
+        return true;
+    }
+
+    static bool HandleRespawnCreatureByEntryCommand(ChatHandler* handler, uint32 entry)
+    {
+        if (!sObjectMgr->GetCreatureTemplate(entry))
+        {
+            handler->SendErrorMessage(LANG_RESPAWN_ENTRY_CREATURE_NOT_FOUND, entry);
+            return false;
+        }
+
+        Player* player = handler->GetSession()->GetPlayer();
+        Map* map = player->GetMap();
+        time_t now = GameTime::GetGameTime().count();
+        uint32 count = 0;
+
+        // Phase 1: respawn dead corpses that are still tracked in the spawn-id store.
+        // Collect first to avoid iterator invalidation caused by Respawn().
+        std::vector<Creature*> deadCreatures;
+        for (auto const& [spawnId, creature] : map->GetCreatureBySpawnIdStore())
+        {
+            CreatureData const* data = sObjectMgr->GetCreatureData(spawnId);
+            if (!data || data->id1 != entry)
+                continue;
+            if (creature->isDead())
+                deadCreatures.push_back(creature);
+        }
+        for (Creature* creature : deadCreatures)
+        {
+            creature->Respawn(true);
+            ++count;
+        }
+
+        // Phase 2: set respawn time to now for fully-removed spawns, skipping pools
+        std::vector<ObjectGuid::LowType> toRespawn;
+        for (auto const& [spawnId, respawnTime] : map->GetCreatureRespawnTimes())
+        {
+            CreatureData const* data = sObjectMgr->GetCreatureData(spawnId);
+            if (!data || data->id1 != entry)
+                continue;
+            if (sPoolMgr->IsPartOfAPool<Creature>(spawnId))
+                continue;
+            toRespawn.push_back(spawnId);
+        }
+        for (ObjectGuid::LowType spawnId : toRespawn)
+        {
+            map->SaveCreatureRespawnTime(spawnId, now);
+            ++count;
+        }
+
+        handler->PSendSysMessage(LANG_RESPAWN_ENTRY_CREATURE_QUEUED, count, entry);
+        return true;
+    }
+
+    static bool HandleRespawnGameObjectByEntryCommand(ChatHandler* handler, uint32 entry)
+    {
+        if (!sObjectMgr->GetGameObjectTemplate(entry))
+        {
+            handler->SendErrorMessage(LANG_RESPAWN_ENTRY_GAMEOBJECT_NOT_FOUND, entry);
+            return false;
+        }
+
+        Player* player = handler->GetSession()->GetPlayer();
+        Map* map = player->GetMap();
+        time_t now = GameTime::GetGameTime().count();
+        uint32 count = 0;
+
+        // Phase 1: respawn inactive objects that are still tracked in the spawn-id store.
+        // Collect first to avoid iterator invalidation caused by Respawn().
+        std::vector<GameObject*> inactiveGOs;
+        for (auto const& [spawnId, go] : map->GetGameObjectBySpawnIdStore())
+        {
+            GameObjectData const* data = sObjectMgr->GetGameObjectData(spawnId);
+            if (!data || data->id != entry)
+                continue;
+            if (!go->isSpawned())
+                inactiveGOs.push_back(go);
+        }
+        for (GameObject* go : inactiveGOs)
+        {
+            go->Respawn();
+            ++count;
+        }
+
+        // Phase 2: set respawn time to now for fully-removed spawns, skipping pools
+        std::vector<ObjectGuid::LowType> toRespawn;
+        for (auto const& [spawnId, respawnTime] : map->GetGORespawnTimes())
+        {
+            GameObjectData const* data = sObjectMgr->GetGameObjectData(spawnId);
+            if (!data || data->id != entry)
+                continue;
+            if (sPoolMgr->IsPartOfAPool<GameObject>(spawnId))
+                continue;
+            toRespawn.push_back(spawnId);
+        }
+        for (ObjectGuid::LowType spawnId : toRespawn)
+        {
+            map->SaveGORespawnTime(spawnId, now);
+            ++count;
+        }
+
+        handler->PSendSysMessage(LANG_RESPAWN_ENTRY_GAMEOBJECT_QUEUED, count, entry);
         return true;
     }
 
