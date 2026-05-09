@@ -24,6 +24,7 @@
 #include "CommandScript.h"
 #include "Common.h"
 #include "GameGraveyard.h"
+#include "GameObject.h"
 #include "GameTime.h"
 #include "GridNotifiers.h"
 #include "GridTerrainLoader.h"
@@ -177,6 +178,7 @@ public:
             { "pinfo",             HandlePInfoCommand,             rbac::RBAC_PERM_COMMAND_PINFO,             Console::Yes },
             { "respawn",           HandleRespawnCommand,           rbac::RBAC_PERM_COMMAND_RESPAWN,           Console::No  },
             { "respawn all",       HandleRespawnAllCommand,        rbac::RBAC_PERM_COMMAND_RESPAWN_ALL,       Console::No  },
+            { "respawn id",        HandleRespawnByIdCommand,       rbac::RBAC_PERM_COMMAND_RESPAWN_ID,        Console::Yes },
             { "mute",              HandleMuteCommand,              rbac::RBAC_PERM_COMMAND_MUTE,              Console::Yes },
             { "mutehistory",       HandleMuteInfoCommand,          rbac::RBAC_PERM_COMMAND_MUTEHISTORY,       Console::Yes },
             { "unmute",            HandleUnmuteCommand,            rbac::RBAC_PERM_COMMAND_UNMUTE,            Console::Yes },
@@ -2443,6 +2445,112 @@ public:
             {
                 handler->PSendSysMessage(LANG_PINFO_CHR_MAILS, readmail, totalmail);
             }
+        }
+
+        return true;
+    }
+
+    static bool HandleRespawnByIdCommand(ChatHandler* handler, ObjectGuid::LowType spawnId)
+    {
+        bool foundAny = false;
+
+        // Try creature spawn
+        if (CreatureData const* creData = sObjectMgr->GetCreatureData(spawnId))
+        {
+            foundAny = true;
+            Map* map = nullptr;
+            if (handler->GetSession())
+            {
+                Player* player = handler->GetSession()->GetPlayer();
+                if (player->GetMapId() == creData->mapId)
+                    map = player->GetMap();
+            }
+            if (!map)
+                map = sMapMgr->FindMap(creData->mapId, 0);
+
+            if (!map)
+            {
+                handler->PSendSysMessage(LANG_RESPAWN_ID_MAP_NOT_LOADED, creData->mapId);
+            }
+            else
+            {
+                bool isAlive = false;
+                auto const creBounds = map->GetCreatureBySpawnIdStore().equal_range(spawnId);
+                for (auto itr = creBounds.first; itr != creBounds.second; ++itr)
+                {
+                    if (itr->second->IsAlive())
+                    {
+                        isAlive = true;
+                        break;
+                    }
+                    if (itr->second->isDead())
+                        itr->second->Respawn(true);
+                }
+
+                if (isAlive)
+                {
+                    handler->PSendSysMessage(LANG_RESPAWN_ID_CREATURE_ALIVE, spawnId, creData->id1);
+                }
+                else
+                {
+                    time_t now = GameTime::GetGameTime().count();
+                    if (map->GetCreatureRespawnTime(spawnId) > 0)
+                        map->SaveCreatureRespawnTime(spawnId, now);
+                    handler->PSendSysMessage(LANG_RESPAWN_ID_CREATURE_QUEUED, spawnId, creData->id1);
+                }
+            }
+        }
+
+        // Try gameobject spawn
+        if (GameObjectData const* goData = sObjectMgr->GetGameObjectData(spawnId))
+        {
+            foundAny = true;
+            Map* map = nullptr;
+            if (handler->GetSession())
+            {
+                Player* player = handler->GetSession()->GetPlayer();
+                if (player->GetMapId() == goData->mapId)
+                    map = player->GetMap();
+            }
+            if (!map)
+                map = sMapMgr->FindMap(goData->mapId, 0);
+
+            if (!map)
+            {
+                handler->PSendSysMessage(LANG_RESPAWN_ID_MAP_NOT_LOADED, goData->mapId);
+            }
+            else
+            {
+                bool isActive = false;
+                auto const goBounds = map->GetGameObjectBySpawnIdStore().equal_range(spawnId);
+                for (auto itr = goBounds.first; itr != goBounds.second; ++itr)
+                {
+                    if (itr->second->isSpawned())
+                    {
+                        isActive = true;
+                        break;
+                    }
+                    itr->second->Respawn();
+                }
+
+                if (isActive)
+                {
+                    handler->PSendSysMessage(LANG_RESPAWN_ID_GAMEOBJECT_ACTIVE, spawnId, goData->id);
+                }
+                else
+                {
+                    time_t now = GameTime::GetGameTime().count();
+                    if (map->GetGORespawnTime(spawnId) > 0)
+                        map->SaveGORespawnTime(spawnId, now);
+                    handler->PSendSysMessage(LANG_RESPAWN_ID_GAMEOBJECT_QUEUED, spawnId, goData->id);
+                }
+            }
+        }
+
+        if (!foundAny)
+        {
+            handler->SendErrorMessage(LANG_RESPAWN_ID_NOT_FOUND, spawnId);
+            return false;
         }
 
         return true;
