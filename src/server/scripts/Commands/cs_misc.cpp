@@ -2504,7 +2504,10 @@ public:
         }
         // Also trigger via respawn time queue for fully-removed spawns
         if (map->GetCreatureRespawnTime(spawnId) > 0)
-            map->SaveCreatureRespawnTime(spawnId, GameTime::GetGameTime().count());
+        {
+            time_t now = GameTime::GetGameTime().count();
+            map->SaveCreatureRespawnTime(spawnId, now);
+        }
         handler->PSendSysMessage(LANG_RESPAWN_GUID_CREATURE_QUEUED, spawnId, creData->id1);
         return true;
     }
@@ -2557,7 +2560,10 @@ public:
             itr->second->Respawn();
         // Also trigger via respawn time queue for fully-removed spawns
         if (map->GetGORespawnTime(spawnId) > 0)
-            map->SaveGORespawnTime(spawnId, GameTime::GetGameTime().count());
+        {
+            time_t now = GameTime::GetGameTime().count();
+            map->SaveGORespawnTime(spawnId, now);
+        }
         handler->PSendSysMessage(LANG_RESPAWN_GUID_GAMEOBJECT_QUEUED, spawnId, goData->id);
         return true;
     }
