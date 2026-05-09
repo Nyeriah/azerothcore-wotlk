@@ -1,10 +1,12 @@
 --
--- RBAC permission for `respawn guid` command (Console::Yes, security level 3 - GM)
+-- RBAC permissions for `respawn creature guid` and `respawn gameobject guid` commands (Console::Yes, security level 3 - GM)
 --
-DELETE FROM `rbac_permissions` WHERE `id` = 916;
+DELETE FROM `rbac_permissions` WHERE `id` IN (916, 917);
 INSERT INTO `rbac_permissions` (`id`, `name`) VALUES
-(916, 'Command: respawn guid');
+(916, 'Command: respawn creature guid'),
+(917, 'Command: respawn gameobject guid');
 
-DELETE FROM `rbac_linked_permissions` WHERE `linkedId` = 916;
+DELETE FROM `rbac_linked_permissions` WHERE `linkedId` IN (916, 917);
 INSERT INTO `rbac_linked_permissions` (`id`, `linkedId`) VALUES
-(197, 916);
+(197, 916),
+(197, 917);

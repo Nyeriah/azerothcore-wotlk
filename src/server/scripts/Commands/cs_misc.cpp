@@ -178,7 +178,8 @@ public:
             { "pinfo",             HandlePInfoCommand,             rbac::RBAC_PERM_COMMAND_PINFO,             Console::Yes },
             { "respawn",           HandleRespawnCommand,           rbac::RBAC_PERM_COMMAND_RESPAWN,           Console::No  },
             { "respawn all",       HandleRespawnAllCommand,        rbac::RBAC_PERM_COMMAND_RESPAWN_ALL,       Console::No  },
-            { "respawn guid",      HandleRespawnByGuidCommand,     rbac::RBAC_PERM_COMMAND_RESPAWN_GUID,      Console::Yes },
+            { "respawn creature guid", HandleRespawnCreatureByGuidCommand,  rbac::RBAC_PERM_COMMAND_RESPAWN_CREATURE_GUID,   Console::Yes },
+            { "respawn gameobject guid", HandleRespawnGameObjectByGuidCommand, rbac::RBAC_PERM_COMMAND_RESPAWN_GAMEOBJECT_GUID, Console::Yes },
             { "mute",              HandleMuteCommand,              rbac::RBAC_PERM_COMMAND_MUTE,              Console::Yes },
             { "mutehistory",       HandleMuteInfoCommand,          rbac::RBAC_PERM_COMMAND_MUTEHISTORY,       Console::Yes },
             { "unmute",            HandleUnmuteCommand,            rbac::RBAC_PERM_COMMAND_UNMUTE,            Console::Yes },
@@ -2450,118 +2451,112 @@ public:
         return true;
     }
 
-    static bool HandleRespawnByGuidCommand(ChatHandler* handler, ObjectGuid::LowType spawnId)
+    static bool HandleRespawnCreatureByGuidCommand(ChatHandler* handler, ObjectGuid::LowType spawnId)
     {
-        bool foundAny = false;
-        time_t now = GameTime::GetGameTime().count();
-
-        // Try creature spawn
-        if (CreatureData const* creData = sObjectMgr->GetCreatureData(spawnId))
+        CreatureData const* creData = sObjectMgr->GetCreatureData(spawnId);
+        if (!creData)
         {
-            foundAny = true;
-            Map* map = nullptr;
-            if (handler->GetSession())
-            {
-                Player* player = handler->GetSession()->GetPlayer();
-                if (player->GetMapId() == creData->mapid)
-                    map = player->GetMap();
-            }
-            if (!map)
-                map = sMapMgr->FindMap(creData->mapid, 0);
-
-            if (!map)
-            {
-                handler->PSendSysMessage(LANG_RESPAWN_GUID_MAP_NOT_LOADED, creData->mapid);
-            }
-            else
-            {
-                // First pass: check if any instance is alive
-                bool isAlive = false;
-                auto const creBounds = map->GetCreatureBySpawnIdStore().equal_range(spawnId);
-                for (auto itr = creBounds.first; itr != creBounds.second; ++itr)
-                {
-                    if (itr->second->IsAlive())
-                    {
-                        isAlive = true;
-                        break;
-                    }
-                }
-
-                if (isAlive)
-                {
-                    handler->PSendSysMessage(LANG_RESPAWN_GUID_CREATURE_ALIVE, spawnId, creData->id1);
-                }
-                else
-                {
-                    // Second pass: respawn any dead corpses in the world
-                    for (auto itr = creBounds.first; itr != creBounds.second; ++itr)
-                    {
-                        if (itr->second->isDead())
-                            itr->second->Respawn(true);
-                    }
-                    // Also trigger via respawn time queue for fully-removed spawns
-                    if (map->GetCreatureRespawnTime(spawnId) > 0)
-                        map->SaveCreatureRespawnTime(spawnId, now);
-                    handler->PSendSysMessage(LANG_RESPAWN_GUID_CREATURE_QUEUED, spawnId, creData->id1);
-                }
-            }
-        }
-
-        // Try gameobject spawn
-        if (GameObjectData const* goData = sObjectMgr->GetGameObjectData(spawnId))
-        {
-            foundAny = true;
-            Map* map = nullptr;
-            if (handler->GetSession())
-            {
-                Player* player = handler->GetSession()->GetPlayer();
-                if (player->GetMapId() == goData->mapid)
-                    map = player->GetMap();
-            }
-            if (!map)
-                map = sMapMgr->FindMap(goData->mapid, 0);
-
-            if (!map)
-            {
-                handler->PSendSysMessage(LANG_RESPAWN_GUID_MAP_NOT_LOADED, goData->mapid);
-            }
-            else
-            {
-                // First pass: check if any instance is already active
-                bool isActive = false;
-                auto const goBounds = map->GetGameObjectBySpawnIdStore().equal_range(spawnId);
-                for (auto itr = goBounds.first; itr != goBounds.second; ++itr)
-                {
-                    if (itr->second->isSpawned())
-                    {
-                        isActive = true;
-                        break;
-                    }
-                }
-
-                if (isActive)
-                {
-                    handler->PSendSysMessage(LANG_RESPAWN_GUID_GAMEOBJECT_ACTIVE, spawnId, goData->id);
-                }
-                else
-                {
-                    // Second pass: respawn inactive objects in the world
-                    for (auto itr = goBounds.first; itr != goBounds.second; ++itr)
-                        itr->second->Respawn();
-                    // Also trigger via respawn time queue for fully-removed spawns
-                    if (map->GetGORespawnTime(spawnId) > 0)
-                        map->SaveGORespawnTime(spawnId, now);
-                    handler->PSendSysMessage(LANG_RESPAWN_GUID_GAMEOBJECT_QUEUED, spawnId, goData->id);
-                }
-            }
-        }
-
-        if (!foundAny)
-        {
-            handler->SendErrorMessage(LANG_RESPAWN_GUID_NOT_FOUND, spawnId);
+            handler->SendErrorMessage(LANG_RESPAWN_GUID_CREATURE_NOT_FOUND, spawnId);
             return false;
         }
 
+        Map* map = nullptr;
+        if (handler->GetSession())
+        {
+            Player* player = handler->GetSession()->GetPlayer();
+            if (player->GetMapId() == creData->mapid)
+                map = player->GetMap();
+        }
+        if (!map)
+            map = sMapMgr->FindMap(creData->mapid, 0);
+
+        if (!map)
+        {
+            handler->PSendSysMessage(LANG_RESPAWN_GUID_MAP_NOT_LOADED, creData->mapid);
+            return true;
+        }
+
+        // First pass: check if any instance is alive
+        bool isAlive = false;
+        auto const creBounds = map->GetCreatureBySpawnIdStore().equal_range(spawnId);
+        for (auto itr = creBounds.first; itr != creBounds.second; ++itr)
+        {
+            if (itr->second->IsAlive())
+            {
+                isAlive = true;
+                break;
+            }
+        }
+
+        if (isAlive)
+        {
+            handler->PSendSysMessage(LANG_RESPAWN_GUID_CREATURE_ALIVE, spawnId, creData->id1);
+            return true;
+        }
+
+        // Second pass: respawn any dead corpses in the world
+        for (auto itr = creBounds.first; itr != creBounds.second; ++itr)
+        {
+            if (itr->second->isDead())
+                itr->second->Respawn(true);
+        }
+        // Also trigger via respawn time queue for fully-removed spawns
+        if (map->GetCreatureRespawnTime(spawnId) > 0)
+            map->SaveCreatureRespawnTime(spawnId, GameTime::GetGameTime().count());
+        handler->PSendSysMessage(LANG_RESPAWN_GUID_CREATURE_QUEUED, spawnId, creData->id1);
+        return true;
+    }
+
+    static bool HandleRespawnGameObjectByGuidCommand(ChatHandler* handler, ObjectGuid::LowType spawnId)
+    {
+        GameObjectData const* goData = sObjectMgr->GetGameObjectData(spawnId);
+        if (!goData)
+        {
+            handler->SendErrorMessage(LANG_RESPAWN_GUID_GAMEOBJECT_NOT_FOUND, spawnId);
+            return false;
+        }
+
+        Map* map = nullptr;
+        if (handler->GetSession())
+        {
+            Player* player = handler->GetSession()->GetPlayer();
+            if (player->GetMapId() == goData->mapid)
+                map = player->GetMap();
+        }
+        if (!map)
+            map = sMapMgr->FindMap(goData->mapid, 0);
+
+        if (!map)
+        {
+            handler->PSendSysMessage(LANG_RESPAWN_GUID_MAP_NOT_LOADED, goData->mapid);
+            return true;
+        }
+
+        // First pass: check if any instance is already active
+        bool isActive = false;
+        auto const goBounds = map->GetGameObjectBySpawnIdStore().equal_range(spawnId);
+        for (auto itr = goBounds.first; itr != goBounds.second; ++itr)
+        {
+            if (itr->second->isSpawned())
+            {
+                isActive = true;
+                break;
+            }
+        }
+
+        if (isActive)
+        {
+            handler->PSendSysMessage(LANG_RESPAWN_GUID_GAMEOBJECT_ACTIVE, spawnId, goData->id);
+            return true;
+        }
+
+        // Second pass: respawn inactive objects in the world
+        for (auto itr = goBounds.first; itr != goBounds.second; ++itr)
+            itr->second->Respawn();
+        // Also trigger via respawn time queue for fully-removed spawns
+        if (map->GetGORespawnTime(spawnId) > 0)
+            map->SaveGORespawnTime(spawnId, GameTime::GetGameTime().count());
+        handler->PSendSysMessage(LANG_RESPAWN_GUID_GAMEOBJECT_QUEUED, spawnId, goData->id);
         return true;
     }
 
