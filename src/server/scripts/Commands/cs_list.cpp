@@ -557,10 +557,7 @@ public:
         for (auto const& pair : map->GetCreatureRespawnTimes())
         {
             CreatureData const* data = sObjectMgr->GetCreatureData(pair.first);
-            if (!data)
-                continue;
-
-            if (entryFilter && data->id1 != *entryFilter)
+            if (!data || (entryFilter && data->id1 != *entryFilter))
                 continue;
 
             CreatureTemplate const* cTemplate = sObjectMgr->GetCreatureTemplate(data->id1);
@@ -580,10 +577,7 @@ public:
         for (auto const& pair : map->GetGORespawnTimes())
         {
             GameObjectData const* data = sObjectMgr->GetGameObjectData(pair.first);
-            if (!data)
-                continue;
-
-            if (entryFilter && data->id != *entryFilter)
+            if (!data || (entryFilter && data->id != *entryFilter))
                 continue;
 
             GameObjectTemplate const* goTemplate = sObjectMgr->GetGameObjectTemplate(data->id);

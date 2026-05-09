@@ -2453,6 +2453,7 @@ public:
     static bool HandleRespawnByIdCommand(ChatHandler* handler, ObjectGuid::LowType spawnId)
     {
         bool foundAny = false;
+        time_t now = GameTime::GetGameTime().count();
 
         // Try creature spawn
         if (CreatureData const* creData = sObjectMgr->GetCreatureData(spawnId))
@@ -2474,6 +2475,7 @@ public:
             }
             else
             {
+                // First pass: check if any instance is alive
                 bool isAlive = false;
                 auto const creBounds = map->GetCreatureBySpawnIdStore().equal_range(spawnId);
                 for (auto itr = creBounds.first; itr != creBounds.second; ++itr)
@@ -2483,8 +2485,6 @@ public:
                         isAlive = true;
                         break;
                     }
-                    if (itr->second->isDead())
-                        itr->second->Respawn(true);
                 }
 
                 if (isAlive)
@@ -2493,7 +2493,13 @@ public:
                 }
                 else
                 {
-                    time_t now = GameTime::GetGameTime().count();
+                    // Second pass: respawn any dead corpses in the world
+                    for (auto itr = creBounds.first; itr != creBounds.second; ++itr)
+                    {
+                        if (itr->second->isDead())
+                            itr->second->Respawn(true);
+                    }
+                    // Also trigger via respawn time queue for fully-removed spawns
                     if (map->GetCreatureRespawnTime(spawnId) > 0)
                         map->SaveCreatureRespawnTime(spawnId, now);
                     handler->PSendSysMessage(LANG_RESPAWN_ID_CREATURE_QUEUED, spawnId, creData->id1);
@@ -2521,6 +2527,7 @@ public:
             }
             else
             {
+                // First pass: check if any instance is already active
                 bool isActive = false;
                 auto const goBounds = map->GetGameObjectBySpawnIdStore().equal_range(spawnId);
                 for (auto itr = goBounds.first; itr != goBounds.second; ++itr)
@@ -2530,7 +2537,6 @@ public:
                         isActive = true;
                         break;
                     }
-                    itr->second->Respawn();
                 }
 
                 if (isActive)
@@ -2539,7 +2545,10 @@ public:
                 }
                 else
                 {
-                    time_t now = GameTime::GetGameTime().count();
+                    // Second pass: respawn inactive objects in the world
+                    for (auto itr = goBounds.first; itr != goBounds.second; ++itr)
+                        itr->second->Respawn();
+                    // Also trigger via respawn time queue for fully-removed spawns
                     if (map->GetGORespawnTime(spawnId) > 0)
                         map->SaveGORespawnTime(spawnId, now);
                     handler->PSendSysMessage(LANG_RESPAWN_ID_GAMEOBJECT_QUEUED, spawnId, goData->id);
