@@ -16,11 +16,11 @@
  */
 
 #include "Channel.h"
-#include "Config.h"
 #include "Group.h"
 #include "Guild.h"
 #include "Log.h"
 #include "PlayerScript.h"
+#include "World.h"
 
 class ChatLogScript : public PlayerScript
 {
@@ -33,14 +33,13 @@ public:
             PLAYERHOOK_CAN_PLAYER_USE_GROUP_CHAT,
             PLAYERHOOK_CAN_PLAYER_USE_GUILD_CHAT,
             PLAYERHOOK_CAN_PLAYER_USE_CHANNEL_CHAT,
-        }),
-        _enabled(sConfigMgr->GetOption<bool>("ChatLog.Enable", false))
+        })
     {
     }
 
     bool OnPlayerCanUseChat(Player* player, uint32 type, uint32 lang, std::string& msg) override
     {
-        if (!_enabled)
+        if (!sWorld->getBoolConfig(CONFIG_CHATLOG_ENABLED))
             return true;
 
         std::string logType = "";
@@ -72,7 +71,7 @@ public:
 
     bool OnPlayerCanUseChat(Player* player, uint32 /*type*/, uint32 lang, std::string& msg, Player* receiver) override
     {
-        if (!_enabled)
+        if (!sWorld->getBoolConfig(CONFIG_CHATLOG_ENABLED))
             return true;
 
         //! NOTE:
@@ -88,7 +87,7 @@ public:
 
     bool OnPlayerCanUseChat(Player* player, uint32 type, uint32 lang, std::string& msg, Group* group) override
     {
-        if (!_enabled)
+        if (!sWorld->getBoolConfig(CONFIG_CHATLOG_ENABLED))
             return true;
 
         //! NOTE:
@@ -127,7 +126,7 @@ public:
 
     bool OnPlayerCanUseChat(Player* player, uint32 type, uint32 lang, std::string& msg, Guild* guild) override
     {
-        if (!_enabled)
+        if (!sWorld->getBoolConfig(CONFIG_CHATLOG_ENABLED))
             return true;
 
         //! NOTE:
@@ -155,7 +154,7 @@ public:
 
     bool OnPlayerCanUseChat(Player* player, uint32 /*type*/, uint32 /*lang*/, std::string& msg, Channel* channel) override
     {
-        if (!_enabled)
+        if (!sWorld->getBoolConfig(CONFIG_CHATLOG_ENABLED))
             return true;
 
         bool isSystem = channel &&
@@ -180,9 +179,6 @@ public:
 
         return true;
     }
-
-private:
-    bool _enabled;
 };
 
 void AddSC_chat_log()
