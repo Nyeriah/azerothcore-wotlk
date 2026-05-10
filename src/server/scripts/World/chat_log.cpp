@@ -16,6 +16,7 @@
  */
 
 #include "Channel.h"
+#include "Config.h"
 #include "Group.h"
 #include "Guild.h"
 #include "Log.h"
@@ -32,12 +33,16 @@ public:
             PLAYERHOOK_CAN_PLAYER_USE_GROUP_CHAT,
             PLAYERHOOK_CAN_PLAYER_USE_GUILD_CHAT,
             PLAYERHOOK_CAN_PLAYER_USE_CHANNEL_CHAT,
-        })
+        }),
+        _enabled(sConfigMgr->GetOption<bool>("ChatLog.Enable", false))
     {
     }
 
     bool OnPlayerCanUseChat(Player* player, uint32 type, uint32 lang, std::string& msg) override
     {
+        if (!_enabled)
+            return true;
+
         std::string logType = "";
         std::string chatType = "";
 
@@ -67,6 +72,9 @@ public:
 
     bool OnPlayerCanUseChat(Player* player, uint32 /*type*/, uint32 lang, std::string& msg, Player* receiver) override
     {
+        if (!_enabled)
+            return true;
+
         //! NOTE:
         //! LANG_ADDON can only be sent by client in "PARTY", "RAID", "GUILD", "BATTLEGROUND", "WHISPER"
         std::string logType = (lang != LANG_ADDON) ? "chat." : "chat.addon.";
@@ -80,6 +88,9 @@ public:
 
     bool OnPlayerCanUseChat(Player* player, uint32 type, uint32 lang, std::string& msg, Group* group) override
     {
+        if (!_enabled)
+            return true;
+
         //! NOTE:
         //! LANG_ADDON can only be sent by client in "PARTY", "RAID", "GUILD", "BATTLEGROUND", "WHISPER"
         std::string logType = (lang != LANG_ADDON) ? "chat." : "chat.addon.";
@@ -116,6 +127,9 @@ public:
 
     bool OnPlayerCanUseChat(Player* player, uint32 type, uint32 lang, std::string& msg, Guild* guild) override
     {
+        if (!_enabled)
+            return true;
+
         //! NOTE:
         //! LANG_ADDON can only be sent by client in "PARTY", "RAID", "GUILD", "BATTLEGROUND", "WHISPER"
         std::string logType = (lang != LANG_ADDON) ? "chat." : "chat.addon.";
@@ -141,6 +155,9 @@ public:
 
     bool OnPlayerCanUseChat(Player* player, uint32 /*type*/, uint32 /*lang*/, std::string& msg, Channel* channel) override
     {
+        if (!_enabled)
+            return true;
+
         bool isSystem = channel &&
                         (channel->HasFlag(CHANNEL_FLAG_TRADE) ||
                          channel->HasFlag(CHANNEL_FLAG_GENERAL) ||
@@ -163,6 +180,9 @@ public:
 
         return true;
     }
+
+private:
+    bool _enabled;
 };
 
 void AddSC_chat_log()
