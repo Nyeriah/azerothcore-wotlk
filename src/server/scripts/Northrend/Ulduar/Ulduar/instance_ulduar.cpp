@@ -231,6 +231,7 @@ public:
         bool _leviathanOutroSpawned;
         bool _leviathanSequenceStarted;
         ObjectGuid _formationRhydianGUID;
+        ObjectGuid _leviathanMachineGUID;
 
         // Hodir
         bool _hmHodir;
@@ -256,6 +257,7 @@ public:
             _leviathanOutroSpawned = false;
             _leviathanSequenceStarted = false;
             _formationRhydianGUID.Clear();
+            _leviathanMachineGUID.Clear();
 
             // Hodir
             _hmHodir = true; // If players fail the Hardmode then becomes false
@@ -390,6 +392,16 @@ public:
             }
             _leviathanCrewGUIDs.clear();
 
+            // The machine flies its sniffed arc over the grounds and reaches the descent point at ~36s
+            std::list<TempSummon*> machine;
+            instance->SummonCreatureGroup(SUMMON_GROUP_LEVIATHAN_OUTRO_MACHINE, &machine);
+            if (!machine.empty())
+            {
+                _leviathanMachineGUID = machine.front()->GetGUID();
+                machine.front()->SetCanFly(true);
+                machine.front()->GetMotionMaster()->MovePath(PATH_FLYING_MACHINE_APPROACH);
+            }
+
             scheduler.Schedule(13s, [this](TaskContext /*context*/)
             {
                 if (Creature* rhydian = instance->GetCreature(_formationRhydianGUID))
@@ -397,17 +409,10 @@ public:
                     rhydian->SetHomePosition({ 239.31581f, -123.64426f, 409.80365f, 3.104f });
                     rhydian->GetMotionMaster()->MovePath(PATH_RHYDIAN_TO_BRANN, FORCED_MOVEMENT_WALK);
                 }
-            }).Schedule(34s, [this](TaskContext /*context*/)
+            }).Schedule(36s, [this](TaskContext /*context*/)
             {
-                std::list<TempSummon*> machine;
-                instance->SummonCreatureGroup(SUMMON_GROUP_LEVIATHAN_OUTRO_MACHINE, &machine);
-                if (!machine.empty())
-                {
-                    Creature* flyingMachine = machine.front();
-                    flyingMachine->SetCanFly(true);
-                    float const groundZ = flyingMachine->GetMapHeight(flyingMachine->GetPositionX(), flyingMachine->GetPositionY(), flyingMachine->GetPositionZ());
-                    flyingMachine->GetMotionMaster()->MoveLand(0, { flyingMachine->GetPositionX(), flyingMachine->GetPositionY(), groundZ });
-                }
+                if (Creature* flyingMachine = instance->GetCreature(_leviathanMachineGUID))
+                    flyingMachine->GetMotionMaster()->MoveLand(0, { 246.4216f, -80.03793f, 409.80365f });
             }).Schedule(39s, [this](TaskContext /*context*/)
             {
                 std::list<TempSummon*> brann;

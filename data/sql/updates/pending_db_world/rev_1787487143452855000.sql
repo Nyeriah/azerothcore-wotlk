@@ -44,7 +44,7 @@ INSERT INTO `creature_summon_groups` (`summonerId`, `summonerType`, `groupId`, `
     (603, 2, 1, 34145, 169.66489, -43.603226, 409.80365, 6.228433, 8, 0, 'Flame Leviathan outro - Expedition Engineer (march start)'),
     (603, 2, 1, 34145, 165.013, -43.62926, 409.80362, 6.264964, 8, 0, 'Flame Leviathan outro - Expedition Engineer (march start)'),
     (603, 2, 2, 33696, 235.96461, -135.27695, 409.68192, 1.152289, 8, 0, 'Flame Leviathan outro - Archmage Rhydian'),
-    (603, 2, 3, 34120, 246.4216, -80.03793, 416.2025, 4.43, 8, 0, 'Flame Leviathan outro - Brann''s Flying Machine'),
+    (603, 2, 3, 34120, 163.25363, -298.22842, 499.2952, 1.42811, 8, 0, 'Flame Leviathan outro - Brann''s Flying Machine (flying in)'),
     (603, 2, 4, 34119, 246.18864, -80.409645, 409.73053, 4.3, 8, 0, 'Flame Leviathan outro - Brann Bronzebeard (at the flying machine)'),
     (603, 2, 5, 33672, 213.43213, -126.89188, 409.66467, 1.413717, 8, 0, 'Flame Leviathan outro - Kirin Tor Mage'),
     (603, 2, 5, 33672, 217.12311, -127.19917, 409.65933, 1.48353, 8, 0, 'Flame Leviathan outro - Kirin Tor Mage'),
@@ -70,8 +70,20 @@ INSERT INTO `gameobject_summon_groups` (`summonerId`, `summonerType`, `groupId`,
     (603, 2, 0, 194569, -706.122, -92.6024, 429.876, 0, 0, 0, 0, 1, 0, 'Flame Leviathan outro - Expedition Base Camp teleporter'),
     (603, 2, 1, 194481, 235.41939, -138.5261, 409.5674, 0, 0, 0, 0, 1, 0, 'Flame Leviathan outro - Portal to Dalaran');
 
-DELETE FROM `waypoint_data` WHERE `id` IN (341190, 336960);
+DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` = 34120;
+
+DELETE FROM `waypoint_data` WHERE `id` IN (341190, 336960, 341200);
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`) VALUES
+    (341200, 1, 187.4006, -142.13303, 499.75803, NULL, 0, 2),
+    (341200, 2, 216.5235, -102.91764, 475.61917, NULL, 0, 2),
+    (341200, 3, 207.2646, -0.70204, 460.2581, NULL, 0, 2),
+    (341200, 4, 201.75299, 29.980198, 465.31372, NULL, 0, 2),
+    (341200, 5, 231.98503, 47.572918, 459.28592, NULL, 0, 2),
+    (341200, 6, 247.23238, 44.02615, 459.17484, NULL, 0, 2),
+    (341200, 7, 253.05849, 22.741266, 446.11926, NULL, 0, 2),
+    (341200, 8, 255.55441, -23.08404, 431.00824, NULL, 0, 2),
+    (341200, 9, 260.49127, -54.526966, 421.7027, NULL, 0, 2),
+    (341200, 10, 246.4216, -80.037926, 416.2025, NULL, 0, 2),
     (336960, 1, 243.5128, -126.59239, 409.80365, NULL, 0, 0),
     (336960, 2, 242.85948, -123.83485, 409.80365, NULL, 0, 0),
     (336960, 3, 239.31581, -123.64426, 409.80365, NULL, 0, 0),
