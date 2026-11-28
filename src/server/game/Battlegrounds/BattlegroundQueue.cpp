@@ -20,6 +20,7 @@
 #include "ArenaTeamMgr.h"
 #include "BattlegroundMgr.h"
 #include "BattlegroundSpamProtect.h"
+#include "BattlegroundUtils.h"
 #include "Channel.h"
 #include "Chat.h"
 #include "GameTime.h"
@@ -30,8 +31,6 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include <unordered_map>
-
-#include "BattlegroundUtils.h"
 
 /*********************************************************/
 /***            BATTLEGROUND QUEUE SYSTEM              ***/
@@ -890,8 +889,12 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 diff, BattlegroundTypeId 
         if (CheckNormalMatch(bg_template, bracket_id, MinPlayersPerTeam, MaxPlayersPerTeam) ||
             (bg_template->isArena() && CheckSkirmishForSameFaction(bracket_id, MinPlayersPerTeam)))
         {
+            uint32 playersPerTeam = 0;
+            if (bgTypeId == BATTLEGROUND_RB && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_RANDOM_CHECK_MAP_MIN_PLAYERS))
+                playersPerTeam = std::min(m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount(), m_SelectionPools[TEAM_HORDE].GetPlayerCount());
+
             // create new battleground
-            Battleground* bg = sBattlegroundMgr->CreateNewBattleground(bgTypeId, bracketEntry, arenaType, false);
+            Battleground* bg = sBattlegroundMgr->CreateNewBattleground(bgTypeId, bracketEntry, arenaType, false, playersPerTeam);
             if (!bg)
             {
                 LOG_ERROR("bg.battleground", "BattlegroundQueue::Update - Cannot create battleground: {}", bgTypeId);

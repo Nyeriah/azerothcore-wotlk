@@ -81,7 +81,9 @@ public:
     Battleground* GetBattlegroundThroughClientInstance(uint32 instanceId, BattlegroundTypeId bgTypeId);
     Battleground* GetBattleground(uint32 instanceID, BattlegroundTypeId bgTypeId);
     Battleground* GetBattlegroundTemplate(BattlegroundTypeId bgTypeId);
-    Battleground* CreateNewBattleground(BattlegroundTypeId bgTypeId, PvPDifficultyEntry const* bracketEntry, uint8 arenaType, bool isRated);
+    // playersPerTeam: players matched on each side; when non-zero and below the random type's max per team,
+    // a random pick skips maps whose minimum it does not meet
+    Battleground* CreateNewBattleground(BattlegroundTypeId bgTypeId, PvPDifficultyEntry const* bracketEntry, uint8 arenaType, bool isRated, uint32 playersPerTeam = 0);
     std::vector<Battleground const*> GetActiveBattlegrounds();
 
     void AddBattleground(Battleground* bg);
@@ -146,7 +148,7 @@ public:
 private:
     bool CreateBattleground(BattlegroundTemplate const* bgTemplate);
     uint32 CreateClientVisibleInstanceId(BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id);
-    BattlegroundTypeId GetRandomBG(BattlegroundTypeId id, uint32 minLevel);
+    BattlegroundTypeId GetRandomBG(BattlegroundTypeId id, PvPDifficultyEntry const* bracketEntry, uint32 playersPerTeam);
 
     typedef std::map<BattlegroundTypeId, BattlegroundData> BattlegroundDataContainer;
     BattlegroundDataContainer bgDataStore;

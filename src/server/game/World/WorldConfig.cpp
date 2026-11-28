@@ -439,6 +439,7 @@ void WorldConfig::BuildConfigCache()
     SetConfigValue<bool>(CONFIG_BATTLEGROUND_DISABLE_QUEST_SHARE_IN_BG, "Battleground.DisableQuestShareInBG", false);
     SetConfigValue<bool>(CONFIG_BATTLEGROUND_DISABLE_READY_CHECK_IN_BG, "Battleground.DisableReadyCheckInBG", false);
     SetConfigValue<bool>(CONFIG_BATTLEGROUND_CAST_DESERTER, "Battleground.CastDeserter", true);
+    SetConfigValue<bool>(CONFIG_BATTLEGROUND_RANDOM_CHECK_MAP_MIN_PLAYERS, "Battleground.Random.CheckMapMinPlayers", false);
     SetConfigValue<bool>(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_ENABLE, "Battleground.QueueAnnouncer.Enable", false);
     SetConfigValue<uint32>(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_LIMIT_MIN_LEVEL, "Battleground.QueueAnnouncer.Limit.MinLevel", 0);
     SetConfigValue<uint32>(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_LIMIT_MIN_PLAYERS, "Battleground.QueueAnnouncer.Limit.MinPlayers", 3);

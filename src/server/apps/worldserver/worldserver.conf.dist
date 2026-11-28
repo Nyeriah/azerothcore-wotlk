@@ -4034,6 +4034,18 @@ Battleground.Override.LowLevels.MinPlayers.SA = 0
 Battleground.Override.LowLevels.MinPlayers.IC = 0
 
 #
+#    Battleground.Random.CheckMapMinPlayers
+#        Description: When a Random Battleground match starts with fewer players per team than the
+#                     Random Battleground MaxPlayersPerTeam, skip maps whose minimum players per team
+#                     (battleground_template.MinPlayersPerTeam, or Battleground.Override.LowLevels.MinPlayers
+#                     below max level) is higher than the smaller team.
+#                     A full match can still start in any map. If no map fits, any map can be picked.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+Battleground.Random.CheckMapMinPlayers = 0
+
+#
 #    Battleground.Warsong.Flags
 #        Description: Set the number of flags required for a team to win in Warsong battleground
 #        Default:     3 (Blizzlike)

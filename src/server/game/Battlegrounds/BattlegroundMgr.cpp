@@ -29,6 +29,7 @@
 #include "BattlegroundRL.h"
 #include "BattlegroundRV.h"
 #include "BattlegroundSA.h"
+#include "BattlegroundUtils.h"
 #include "BattlegroundWS.h"
 #include "Chat.h"
 #include "Common.h"
@@ -376,9 +377,9 @@ uint32 BattlegroundMgr::CreateClientVisibleInstanceId(BattlegroundTypeId bgTypeI
 }
 
 // create a new battleground that will really be used to play
-Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId originalBgTypeId, PvPDifficultyEntry const* bracketEntry, uint8 arenaType, bool isRated)
+Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId originalBgTypeId, PvPDifficultyEntry const* bracketEntry, uint8 arenaType, bool isRated, uint32 playersPerTeam)
 {
-    BattlegroundTypeId bgTypeId = GetRandomBG(originalBgTypeId, bracketEntry->minLevel);
+    BattlegroundTypeId bgTypeId = GetRandomBG(originalBgTypeId, bracketEntry, playersPerTeam);
 
     if (originalBgTypeId == BATTLEGROUND_AA)
         originalBgTypeId = bgTypeId;
@@ -911,14 +912,12 @@ bool BattlegroundMgr::IsBGWeekend(BattlegroundTypeId bgTypeId)
     return IsHolidayActive(BGTypeToWeekendHolidayId(bgTypeId));
 }
 
-BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId, uint32 minLevel)
+BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId, PvPDifficultyEntry const* bracketEntry, uint32 playersPerTeam)
 {
     if (BattlegroundTemplate const* bgTemplate = GetBattlegroundTemplateByTypeId(bgTypeId))
     {
-        std::vector<BattlegroundTypeId> ids;
-        ids.reserve(16);
-        std::vector<double> weights;
-        weights.reserve(16);
+        std::vector<BattlegroundTemplate const*> candidates;
+        candidates.reserve(16);
 
         for (int32 mapId : bgTemplate->BattlemasterEntry->mapid)
         {
@@ -927,15 +926,20 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId, uin
 
             if (BattlegroundTemplate const* bg = GetBattlegroundTemplateByMapId(mapId))
             {
-                if (bg->MinLevel <= minLevel)
-                {
-                    ids.push_back(bg->Id);
-                    weights.push_back(bg->Weight);
-                }
+                if (bg->MinLevel <= bracketEntry->minLevel)
+                    candidates.push_back(bg);
             }
         }
 
-        return *Acore::Containers::SelectRandomWeightedContainerElement(ids, weights);
+        if (playersPerTeam)
+            candidates = FilterRandomBGCandidates(candidates, bracketEntry, playersPerTeam, bgTemplate->MaxPlayersPerTeam);
+
+        std::vector<double> weights;
+        weights.reserve(candidates.size());
+        for (BattlegroundTemplate const* bg : candidates)
+            weights.push_back(bg->Weight);
+
+        return (*Acore::Containers::SelectRandomWeightedContainerElement(candidates, weights))->Id;
     }
 
     return BATTLEGROUND_TYPE_NONE;
